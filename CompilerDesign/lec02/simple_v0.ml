@@ -3,6 +3,7 @@
 
 (* grammar ------------------------------------------------------------------ *)
 (*
+HEHE
  BNF grammar for this simple language:
   <exp> ::=
          |  <X>
