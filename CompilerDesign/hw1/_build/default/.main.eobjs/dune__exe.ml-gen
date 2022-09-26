@@ -1,0 +1,18 @@
+(** @canonical Dune__exe.Assert *)
+module Assert = Dune__exe__Assert
+
+
+(** @canonical Dune__exe.Gradedtests *)
+module Gradedtests = Dune__exe__Gradedtests
+
+
+(** @canonical Dune__exe.Hellocaml *)
+module Hellocaml = Dune__exe__Hellocaml
+
+
+(** @canonical Dune__exe.Main *)
+module Main = Dune__exe__Main
+
+
+(** @canonical Dune__exe.Providedtests *)
+module Providedtests = Dune__exe__Providedtests
