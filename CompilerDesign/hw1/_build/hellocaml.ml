@@ -688,7 +688,10 @@ let rec mylist_to_list (l:'a mylist) : 'a list =
   the inverse of the mylist_to_list function given above.
 *)
 let rec list_to_mylist (l:'a list) : 'a mylist =
-  failwith "list_to_mylist unimplemented"
+  begin match l with
+  | [] -> Nil
+  | x::xs -> Cons(x,list_to_mylist xs)
+  end
 
 
 (*
@@ -705,7 +708,10 @@ let rec list_to_mylist (l:'a list) : 'a mylist =
   append.  So (List.append [1;2] [3]) is the same as  ([1;2] @ [3]).
 *)
 let rec append (l1:'a list) (l2:'a list) : 'a list =
-  failwith "append unimplemented"
+  begin match l1 with
+  | [] -> l2
+  | x::xs -> x::(append xs l2)
+end
 
 (*
   Problem 3-3
@@ -714,7 +720,10 @@ let rec append (l1:'a list) (l2:'a list) : 'a list =
   you might want to call append.  Do not use the library function.
 *)
 let rec rev (l:'a list) : 'a list =
-  failwith "rev unimplemented"
+  begin match l with
+  | [] -> []
+  | x::xs -> append (rev xs) [x]
+end
 
 (*
   Problem 3-4
@@ -728,7 +737,8 @@ let rec rev (l:'a list) : 'a list =
 let rev_t (l: 'a list) : 'a list =
   let rec rev_aux l acc =
     begin match l with
-      | _ -> failwith "rev_t unimplemented"
+      | [] -> acc
+      | x::xs -> rev_aux xs (x::acc)
     end
   in
   rev_aux l []
@@ -748,7 +758,15 @@ let rev_t (l: 'a list) : 'a list =
   evaluates to true or false.
 *)
 let rec insert (x:'a) (l:'a list) : 'a list =
-  failwith "insert unimplemented"
+  begin match l with
+  | [] -> [x]
+  | y::ys -> if x > y then
+    y::(insert x ys)
+  else if x = y then
+    y::ys
+  else
+    x::y::ys
+  end
 
 
 (*
@@ -759,8 +777,10 @@ let rec insert (x:'a) (l:'a list) : 'a list =
   Hint: you might want to use the insert function that you just defined.
 *)
 let rec union (l1:'a list) (l2:'a list) : 'a list =
-  failwith "union unimplemented"
-
+  begin match l1 with
+  | [] -> l2
+  | x::xs -> union xs (insert x l2)
+end
 
 
 
@@ -850,7 +870,13 @@ let e3 : exp = Mult(Var "y", Mult(e2, Neg e2))     (* "y * ((x+1) * -(x+1))" *)
   Hint: you probably want to use the 'union' function you wrote for Problem 3-5.
 *)
 let rec vars_of (e:exp) : string list =
-  failwith "vars_of unimplemented"
+  begin match e with
+  | Var a -> [a]
+  | Const a -> []
+  | Add (a,b) -> union (vars_of a) (vars_of b)
+  | Mult (a,b) -> union (vars_of a) (vars_of b)
+  | Neg a -> vars_of a
+end
 
 
 (*
@@ -869,7 +895,15 @@ let rec vars_of (e:exp) : string list =
 *)
 
 let rec string_of (e:exp) : string =
-  failwith "string_of unimplemented"
+  begin match e with
+  | Var a -> a
+  | Const a -> Int64.to_string a
+  | Add (a,b) -> "(" ^ (string_of a) ^ " + " ^ (string_of b) ^ ")"
+  | Mult (a,b) -> "(" ^ (string_of a) ^ " * " ^ (string_of b) ^ ")"
+  | Neg a -> "-(" ^ (string_of a) ^ ")"
+end;;
+
+(*print_string (string_of e3)*)
 
 (*
   How should we _interpret_ (i.e. give meaning to) an expression?
@@ -930,7 +964,11 @@ let ctxt2 : ctxt = [("x", 2L); ("y", 7L)]  (* maps "x" to 2L, "y" to 7L *)
   such value, it should raise the Not_found exception.
 *)
 let rec lookup (x:string) (c:ctxt) : int64 =
-  failwith "unimplemented"
+  begin match c with
+  | [] -> raise Not_found
+  | (a,b)::l -> if a = x then b
+  else lookup x l
+end
 
 
 (*
@@ -957,7 +995,13 @@ let rec lookup (x:string) (c:ctxt) : int64 =
 *)
 
 let rec interpret (c:ctxt) (e:exp) : int64 =
-  failwith "unimplemented"
+  begin match e with
+  | Var a -> lookup a c
+  | Const a -> a
+  | Add (a,b) -> Int64.add (interpret c a) (interpret c b)
+  | Mult (a,b) -> Int64.mul (interpret c a) (interpret c b)
+  | Neg a -> Int64.neg (interpret c a)
+end
 
 
 (*
@@ -1003,7 +1047,28 @@ let rec interpret (c:ctxt) (e:exp) : int64 =
 *)
 
 let rec optimize (e:exp) : exp =
-  failwith "optimize unimplemented"
+  let rec optimize_const (o:exp) : exp =
+    begin match o with
+    | Add (Const a, Const b) -> Const (Int64.add a b)
+    | Mult (Const a, Const b) -> Const (Int64.mul a b)
+    | a -> a 
+  end in
+  begin match e with
+  | Add (Const a, Const b) -> Const (Int64.add a b)
+  | Mult (Const a, Const b) -> Const (Int64.mul a b)
+  | Add (Const 0L, a) -> a
+  | Add (a, Const 0L) -> a
+  | Mult (Const 0L, _) -> Const 0L
+  | Mult (_, Const 0L) -> Const 0L
+  | Mult (Const 1L, a) -> a
+  | Mult (a, Const 1L) -> a
+  | Neg (Neg a) -> a
+  | Add (a,b) -> optimize_const (Add ((optimize a), (optimize b)))
+  | Mult (a,b) -> optimize_const (Mult ((optimize a), (optimize b)))
+  | Neg a -> Neg (optimize a)
+  | a -> a
+end
+
 
 
 (******************************************************************************)
