@@ -1047,12 +1047,6 @@ end
 *)
 
 let rec optimize (e:exp) : exp =
-  let rec optimize_const (o:exp) : exp =
-    begin match o with
-    | Add (Const a, Const b) -> Const (Int64.add a b)
-    | Mult (Const a, Const b) -> Const (Int64.mul a b)
-    | a -> a 
-  end in
   begin match e with
   | Add (Const a, Const b) -> Const (Int64.add a b)
   | Mult (Const a, Const b) -> Const (Int64.mul a b)
@@ -1063,8 +1057,8 @@ let rec optimize (e:exp) : exp =
   | Mult (Const 1L, a) -> a
   | Mult (a, Const 1L) -> a
   | Neg (Neg a) -> a
-  | Add (a,b) -> optimize_const (Add ((optimize a), (optimize b)))
-  | Mult (a,b) -> optimize_const (Mult ((optimize a), (optimize b)))
+  | Add (a,b) -> optimize (Add ((optimize a), (optimize b)))
+  | Mult (a,b) -> optimize (Mult ((optimize a), (optimize b)))
   | Neg a -> Neg (optimize a)
   | a -> a
 end
@@ -1212,7 +1206,13 @@ let ans1 = run [] p1
    - You should test the correctness of your compiler on several examples.
 *)
 let rec compile (e:exp) : program =
-  failwith "compile unimplemented"
+  begin match e with
+  | Const n -> IPushC n::[]
+  | Var v -> IPushV v::[]
+  | Add (a,b) -> (compile a) @ (compile b) @ IAdd::[]
+  | Mult (a,b) -> (compile a) @ (compile b) @ IMul::[]
+  | Neg a -> (compile a) @ INeg::[]
+end
 
 
 
