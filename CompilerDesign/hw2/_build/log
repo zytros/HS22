@@ -3,7 +3,7 @@
 # Shared cache: disabled
 # Workspace root: /mnt/c/Users/lucas/Documents/HS22/CompilerDesign/hw2
 # Auto-detected concurrency: 8
-$ /home/user/.opam/4.06.0/bin/ocamlc.opt -config > /tmp/dune_7acfc3_output
+$ /home/user/.opam/4.06.0/bin/ocamlc.opt -config > /tmp/dune_af1f6d_output
 # Dune context:
 #  { name = "default"
 #  ; kind = "default"
@@ -113,12 +113,7 @@ $ /home/user/.opam/4.06.0/bin/ocamlc.opt -config > /tmp/dune_7acfc3_output
 #      ; windows_unicode = false
 #      }
 #  }
-$ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamldep.opt -modules -impl main.ml) > _build/default/.main.eobjs/main.ml.d
-$ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamldep.opt -modules -intf util/assert.mli) > _build/default/.main.eobjs/assert.mli.d
 $ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamldep.opt -modules -impl simulator.ml) > _build/default/.main.eobjs/simulator.ml.d
-$ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamldep.opt -modules -impl studenttests.ml) > _build/default/.main.eobjs/studenttests.ml.d
-$ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamldep.opt -modules -impl gradedtests.ml) > _build/default/.main.eobjs/gradedtests.ml.d
-$ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamldep.opt -modules -impl x86/x86.ml) > _build/default/.main.eobjs/x86.ml.d
 $ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamldep.opt -modules -impl util/assert.ml) > _build/default/.main.eobjs/assert.ml.d
 $ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -w -49 -nopervasives -nostdlib -g -bin-annot -I .main.eobjs/byte -no-alias-deps -opaque -o .main.eobjs/byte/dune__exe.cmo -c -impl .main.eobjs/dune__exe.ml-gen)
 $ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -no-strict-formats -g -bin-annot -I .main.eobjs/byte -no-alias-deps -opaque -open Dune__exe -o .main.eobjs/byte/dune__exe__Assert.cmi -c -intf util/assert.mli)
@@ -129,70 +124,31 @@ $ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamlc.opt -w @1..3@5..28@30
 > Warning 27: unused variable dst.
 $ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -w -49 -nopervasives -nostdlib -g -I .main.eobjs/byte -I .main.eobjs/native -intf-suffix .ml-gen -no-alias-deps -opaque -o .main.eobjs/native/dune__exe.cmx -c -impl .main.eobjs/dune__exe.ml-gen)
 $ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -no-strict-formats -g -bin-annot -I .main.eobjs/byte -no-alias-deps -opaque -open Dune__exe -o .main.eobjs/byte/dune__exe__Simulator.cmo -c -impl simulator.ml)
-> File "simulator.ml", line 123, characters 6-7:
+> File "simulator.ml", line 125, characters 6-7:
 > Warning 27: unused variable o.
-> File "simulator.ml", line 146, characters 16-18:
-> Warning 27: unused variable fo.
-> File "simulator.ml", line 146, characters 20-22:
-> Warning 27: unused variable fs.
-> File "simulator.ml", line 146, characters 24-26:
-> Warning 27: unused variable fz.
-> File "simulator.ml", line 146, characters 48-49:
-> Warning 27: unused variable x.
-> File "simulator.ml", line 150, characters 14-18:
-> Warning 27: unused variable addr.
-> File "simulator.ml", line 160, characters 10-11:
-> Warning 27: unused variable m.
-> File "simulator.ml", line 200, characters 14-15:
+> File "simulator.ml", line 413, characters 14-15:
 > Warning 27: unused variable p.
-> File "simulator.ml", line 216, characters 10-15:
+> File "simulator.ml", line 430, characters 10-15:
 > Warning 27: unused variable entry.
-> File "simulator.ml", line 216, characters 17-25:
+> File "simulator.ml", line 430, characters 17-25:
 > Warning 27: unused variable text_pos.
-> File "simulator.ml", line 216, characters 27-35:
+> File "simulator.ml", line 430, characters 27-35:
 > Warning 27: unused variable data_pos.
-> File "simulator.ml", line 216, characters 37-45:
+> File "simulator.ml", line 430, characters 37-45:
 > Warning 27: unused variable text_seg.
-> File "simulator.ml", line 216, characters 47-55:
+> File "simulator.ml", line 430, characters 47-55:
 > Warning 27: unused variable data_seg.
 $ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -no-strict-formats -g -I .main.eobjs/byte -I .main.eobjs/native -intf-suffix .ml -no-alias-deps -opaque -open Dune__exe -o .main.eobjs/native/dune__exe__Assert.cmx -c -impl util/assert.ml)
-$ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -no-strict-formats -g -bin-annot -I .main.eobjs/byte -no-alias-deps -opaque -open Dune__exe -o .main.eobjs/byte/dune__exe__Studenttests.cmo -c -impl studenttests.ml)
-> File "studenttests.ml", line 2, characters 0-8:
-> Warning 33: unused open Dune__exe.X86.
-> File "studenttests.ml", line 3, characters 0-14:
-> Warning 33: unused open Dune__exe.Simulator.
 $ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -no-strict-formats -g -I .main.eobjs/byte -I .main.eobjs/native -intf-suffix .ml -no-alias-deps -opaque -open Dune__exe -o .main.eobjs/native/dune__exe__X86.cmx -c -impl x86/x86.ml)
 > File "x86/x86.ml", line 130, characters 10-11:
 > Warning 27: unused variable i.
 > File "x86/x86.ml", line 130, characters 14-17:
 > Warning 27: unused variable dst.
-$ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -no-strict-formats -g -I .main.eobjs/byte -I .main.eobjs/native -intf-suffix .ml -no-alias-deps -opaque -open Dune__exe -o .main.eobjs/native/dune__exe__Simulator.cmx -c -impl simulator.ml)
-> File "simulator.ml", line 123, characters 6-7:
-> Warning 27: unused variable o.
-> File "simulator.ml", line 146, characters 16-18:
-> Warning 27: unused variable fo.
-> File "simulator.ml", line 146, characters 20-22:
-> Warning 27: unused variable fs.
-> File "simulator.ml", line 146, characters 24-26:
-> Warning 27: unused variable fz.
-> File "simulator.ml", line 146, characters 48-49:
-> Warning 27: unused variable x.
-> File "simulator.ml", line 150, characters 14-18:
-> Warning 27: unused variable addr.
-> File "simulator.ml", line 160, characters 10-11:
-> Warning 27: unused variable m.
-> File "simulator.ml", line 200, characters 14-15:
-> Warning 27: unused variable p.
-> File "simulator.ml", line 216, characters 10-15:
-> Warning 27: unused variable entry.
-> File "simulator.ml", line 216, characters 17-25:
-> Warning 27: unused variable text_pos.
-> File "simulator.ml", line 216, characters 27-35:
-> Warning 27: unused variable data_pos.
-> File "simulator.ml", line 216, characters 37-45:
-> Warning 27: unused variable text_seg.
-> File "simulator.ml", line 216, characters 47-55:
-> Warning 27: unused variable data_seg.
+$ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -no-strict-formats -g -bin-annot -I .main.eobjs/byte -no-alias-deps -opaque -open Dune__exe -o .main.eobjs/byte/dune__exe__Studenttests.cmo -c -impl studenttests.ml)
+> File "studenttests.ml", line 2, characters 0-8:
+> Warning 33: unused open Dune__exe.X86.
+> File "studenttests.ml", line 3, characters 0-14:
+> Warning 33: unused open Dune__exe.Simulator.
 $ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -no-strict-formats -g -I .main.eobjs/byte -I .main.eobjs/native -intf-suffix .ml -no-alias-deps -opaque -open Dune__exe -o .main.eobjs/native/dune__exe__Studenttests.cmx -c -impl studenttests.ml)
 > File "studenttests.ml", line 2, characters 0-8:
 > Warning 33: unused open Dune__exe.X86.
@@ -205,6 +161,21 @@ $ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamlc.opt -w @1..3@5..28@30
 > Warning 27: unused variable i.
 > File "gradedtests.ml", line 166, characters 2-29:
 > Warning 35: unused for-loop index i.
+$ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -no-strict-formats -g -I .main.eobjs/byte -I .main.eobjs/native -intf-suffix .ml -no-alias-deps -opaque -open Dune__exe -o .main.eobjs/native/dune__exe__Simulator.cmx -c -impl simulator.ml)
+> File "simulator.ml", line 125, characters 6-7:
+> Warning 27: unused variable o.
+> File "simulator.ml", line 413, characters 14-15:
+> Warning 27: unused variable p.
+> File "simulator.ml", line 430, characters 10-15:
+> Warning 27: unused variable entry.
+> File "simulator.ml", line 430, characters 17-25:
+> Warning 27: unused variable text_pos.
+> File "simulator.ml", line 430, characters 27-35:
+> Warning 27: unused variable data_pos.
+> File "simulator.ml", line 430, characters 37-45:
+> Warning 27: unused variable text_seg.
+> File "simulator.ml", line 430, characters 47-55:
+> Warning 27: unused variable data_seg.
 $ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -no-strict-formats -g -bin-annot -I .main.eobjs/byte -no-alias-deps -opaque -open Dune__exe -o .main.eobjs/byte/dune__exe__Main.cmo -c -impl main.ml)
 > File "main.ml", line 3, characters 0-8:
 > Warning 33: unused open Dune__exe.X86.
@@ -223,3 +194,7 @@ $ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamlopt.opt -w @1..3@5..28@
 > File "gradedtests.ml", line 166, characters 2-29:
 > Warning 35: unused for-loop index i.
 $ (cd _build/default && /home/user/.opam/4.06.0/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -no-strict-formats -g -o main.exe /home/user/.opam/4.06.0/lib/ocaml/unix.cmxa -I /home/user/.opam/4.06.0/lib/ocaml /home/user/.opam/4.06.0/lib/ocaml/str.cmxa -I /home/user/.opam/4.06.0/lib/ocaml .main.eobjs/native/dune__exe.cmx .main.eobjs/native/dune__exe__Assert.cmx .main.eobjs/native/dune__exe__X86.cmx .main.eobjs/native/dune__exe__Simulator.cmx .main.eobjs/native/dune__exe__Gradedtests.cmx .main.eobjs/native/dune__exe__Studenttests.cmx .main.eobjs/native/dune__exe__Main.cmx)
+> File "_none_", line 1:
+> Error: No implementations provided for the following modules:
+>          Big_int referenced from .main.eobjs/native/dune__exe__Simulator.cmx
+[2]
