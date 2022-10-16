@@ -6,7 +6,7 @@ ocamlfind ocamldep -modules util/assert.mli > util/assert.mli.depends # cached
 # Target: util/assert.cmi, tags: { byte, compile, extension:mli, file:util/assert.mli, interf, ocaml, quiet, traverse }
 ocamlfind ocamlc -c -I util -I x86 -o util/assert.cmi util/assert.mli # cached
 # Target: gradedtests.ml.depends, tags: { package(num), extension:ml, file:gradedtests.ml, ocaml, ocamldep, quiet, traverse }
-ocamlfind ocamldep -package num -modules gradedtests.ml > gradedtests.ml.depends # cached
+ocamlfind ocamldep -package num -modules gradedtests.ml > gradedtests.ml.depends
 # Target: simulator.ml.depends, tags: { package(num), extension:ml, file:simulator.ml, ocaml, ocamldep, quiet, traverse }
 ocamlfind ocamldep -package num -modules simulator.ml > simulator.ml.depends
 # Target: x86/x86.ml.depends, tags: { extension:ml, file:x86/x86.ml, ocaml, ocamldep, quiet, traverse }
@@ -15,9 +15,6 @@ ocamlfind ocamldep -modules x86/x86.ml > x86/x86.ml.depends # cached
 ocamlfind ocamlc -c -I x86 -I util -o x86/x86.cmo x86/x86.ml # cached
 # Target: simulator.cmo, tags: { package(num), byte, compile, extension:cmo, extension:ml, file:simulator.cmo, file:simulator.ml, implem, ocaml, quiet, traverse }
 ocamlfind ocamlc -c -package num -I x86 -I util -o simulator.cmo simulator.ml
-+ ocamlfind ocamlc -c -package num -I x86 -I util -o simulator.cmo simulator.ml
-File "simulator.ml", line 389, characters 2-46:
-Warning 21: this statement never returns (or has an unsound type.)
 # Target: studenttests.ml.depends, tags: { package(num), extension:ml, file:studenttests.ml, ocaml, ocamldep, quiet, traverse }
 ocamlfind ocamldep -package num -modules studenttests.ml > studenttests.ml.depends # cached
 # Target: gradedtests.cmo, tags: { package(num), byte, compile, extension:cmo, extension:ml, file:gradedtests.cmo, file:gradedtests.ml, implem, ocaml, quiet, traverse }
@@ -34,9 +31,6 @@ ocamlfind ocamlopt -c -I util -I x86 -o util/assert.cmx util/assert.ml # cached
 ocamlfind ocamlopt -c -I x86 -I util -o x86/x86.cmx x86/x86.ml # cached
 # Target: simulator.cmx, tags: { package(num), compile, extension:cmx, extension:ml, file:simulator.cmx, file:simulator.ml, implem, native, ocaml, quiet, traverse }
 ocamlfind ocamlopt -c -package num -I x86 -I util -o simulator.cmx simulator.ml
-+ ocamlfind ocamlopt -c -package num -I x86 -I util -o simulator.cmx simulator.ml
-File "simulator.ml", line 389, characters 2-46:
-Warning 21: this statement never returns (or has an unsound type.)
 # Target: gradedtests.cmx, tags: { package(num), compile, extension:cmx, extension:ml, file:gradedtests.cmx, file:gradedtests.ml, implem, native, ocaml, quiet, traverse }
 ocamlfind ocamlopt -c -package num -I x86 -I util -o gradedtests.cmx gradedtests.ml
 # Target: studenttests.cmx, tags: { package(num), compile, extension:cmx, extension:ml, file:studenttests.cmx, file:studenttests.ml, implem, native, ocaml, quiet, traverse }

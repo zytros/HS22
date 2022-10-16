@@ -217,8 +217,7 @@ let step (m:mach) : unit =
 
   (* get quadword from address int -> int64 *)
   let get_quad_from_addr (address:int) : int64 =
-    failwith "got to get_quad_from_addr";
-    (*int64_of_sbytes ( [m.mem.(address); m.mem.(address+1); m.mem.(address+2); m.mem.(address+3); m.mem.(address+4);m.mem.(address+5); m.mem.(address+6); m.mem.(address+7)]);*)
+    int64_of_sbytes ( [m.mem.(address); m.mem.(address+1); m.mem.(address+2); m.mem.(address+3); m.mem.(address+4);m.mem.(address+5); m.mem.(address+6); m.mem.(address+7)]);
     
   in
 
@@ -231,11 +230,13 @@ let step (m:mach) : unit =
   end in
 
   let store_data_mem (v , address) =
-    Array.blit (Array.of_list (sbytes_of_int64 v)) 0 m.mem address 8
+    Array.blit (Array.of_list (sbytes_of_int64 v)) 0 m.mem address 8;
+    Printf.printf "stored %d at %d\n" (Int64.to_int v) (address);
+    Printf.printf "%d contains %d\n--------------------------------\n" address (Int64.to_int(get_quad_from_addr address))
   in
 
   let store_data_reg (v, r) = 
-    Array.set m.regs (rind r) v
+    Array.set m.regs (rind r) v;
   in
 
   let store_data (v, op) =
@@ -269,16 +270,22 @@ let step (m:mach) : unit =
     end
   end in
     
+  let bool_toString b =
+    if b then "true" else "false"
+  in
+
   let setFlags (sol:t) : unit =
     m.flags.fo <- sol.overflow;
     if sol.value < 0L then
       m.flags.fs <- true
     else
       m.flags.fs <- false;
-    if sol.value = 0L then
+    if (Int64.equal sol.value 0L) then
       m.flags.fz <- true
     else
-      m.flags.fz <- false
+      m.flags.fz <- false;
+
+    Printf.printf "For val %s got flags OF: %s, SF: %s, ZF: %s\n" (Int64.to_string sol.value) (bool_toString sol.overflow) (bool_toString m.flags.fs) (bool_toString m.flags.fz)
   in
 
 
@@ -295,10 +302,12 @@ let step (m:mach) : unit =
         setFlags sol
       | (Addq, [op1;op2]) ->
         let sol = add (op_res_m op1) (op_res_m op2) in
+        Printf.printf "added 2 numbers together: %s + %s  " (Int64.to_string (op_res_m op1)) (Int64.to_string (op_res_m op2));
         store_data (sol.value, op2);
         setFlags sol
       | (Subq, [op1;op2]) ->
         let sol = sub (op_res_m op2) (op_res_m op1) in
+        Printf.printf "subtracted 2 numbers: %s - %s  " (Int64.to_string (op_res_m op1)) (Int64.to_string (op_res_m op2));
         store_data (sol.value, op2);
         setFlags sol
       | (Imulq, [op1;op2]) ->
@@ -353,7 +362,8 @@ let step (m:mach) : unit =
         | _ -> failwith "invalid addressing"
       end
       | (Movq, [op1;op2]) ->
-        store_data ((op_res_m op1), op2) 
+        store_data ((op_res_m op1), op2);
+        Printf.printf "moved %s\n" (Int64.to_string(op_res_m op1))
       | (Pushq, [op]) ->
         m.regs.(rind Rsp) <- (Int64.sub m.regs.(rind Rsp) 8L);
         store_data ((op_res_m op), Ind2 Rsp)
@@ -380,13 +390,14 @@ let step (m:mach) : unit =
       | _ -> failwith "Invalid Instr"
   end in
 
+  
   operand_exec get_instr
+  (*Printf.printf "rax = %d; 65528 = %d \n" (Int64.to_int m.regs.(rind Rax)) (Int64.to_int(get_quad_from_addr 65528))*)
 
 (* Runs the machine until the rip register reaches a designated
    memory address. Returns the contents of %rax when the 
    machine halts. *)
 let run (m:mach) : int64 = 
-  failwith "run------------------------------";
   while m.regs.(rind Rip) <> exit_addr do step m done;
   m.regs.(rind Rax)
 
