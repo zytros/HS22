@@ -221,8 +221,21 @@ let step (m:mach) : unit =
     
   in
 
-  
-  
+  let instr_to_string (i,o) =
+    begin match i with
+    | Negq -> "negq"
+    | Addq -> "addq"
+    | Subq -> "subq"
+    | Imulq -> "imulq"
+    | Cmpq -> "cmpq"
+    | Andq -> "andq"
+    | Orq -> "orq"
+    | Movq -> "movq"
+    | Popq -> "------popq------"
+    | Pushq -> "------pushq------"
+    | _ -> "otherOP"
+  end in
+
   let quad_of_imm i =
     begin match i with
     | Lit a -> a
@@ -237,6 +250,7 @@ let step (m:mach) : unit =
 
   let store_data_reg (v, r) = 
     Array.set m.regs (rind r) v;
+    Printf.printf "stored %s in reg %d\n" (Int64.to_string v) (rind r)
   in
 
   let store_data (v, op) =
@@ -261,10 +275,9 @@ let step (m:mach) : unit =
       | Lit b -> get_quad_from_addr (int_op_to_int (map_addr b))
       | Lbl _ -> failwith "excpected Lit, got Lbl"
     end
-    | Ind2 r -> get_quad_from_addr (rind r)
+    | Ind2 r -> get_quad_from_addr (int_op_to_int (map_addr (m.regs.(rind r))))
     | Ind3 (i,r) -> 
       begin match i with
-      (* maybe move map_addr out of plus *)
       | Lit b -> get_quad_from_addr (int_op_to_int (map_addr (Int64.add (m.regs.(rind r)) b)))
       | Lbl _ -> failwith "excpected Lit, got Lbl"
     end
@@ -288,91 +301,115 @@ let step (m:mach) : unit =
     Printf.printf "For val %s got flags OF: %s, SF: %s, ZF: %s\n" (Int64.to_string sol.value) (bool_toString sol.overflow) (bool_toString m.flags.fs) (bool_toString m.flags.fz)
   in
 
+  let incrRip =
+    m.regs.(rind Rip) <- (Int64.add m.regs.(rind Rip) 8L)
+  in
 
   (* set flags *)
-  let operand_exec sbyte = 
+  let operand_exec b = 
     
-    begin match sbyte with
+    begin match b with
     | InsFrag -> failwith "excpected InsB0, got InsFrag"
     | Byte _ -> failwith "excpected InsB0, got Byte"
-    | InsB0 ins -> match ins with
+    | InsB0 ins -> Printf.printf "Instr: %s\n" (instr_to_string ins);
+      match ins with
       | (Negq, [op1]) ->
         let sol = neg (op_res_m op1) in
         store_data (sol.value, op1);
-        setFlags sol
+        setFlags sol;
+        incrRip
       | (Addq, [op1;op2]) ->
         let sol = add (op_res_m op1) (op_res_m op2) in
         Printf.printf "added 2 numbers together: %s + %s  " (Int64.to_string (op_res_m op1)) (Int64.to_string (op_res_m op2));
         store_data (sol.value, op2);
-        setFlags sol
+        setFlags sol;
+        incrRip
       | (Subq, [op1;op2]) ->
         let sol = sub (op_res_m op2) (op_res_m op1) in
-        Printf.printf "subtracted 2 numbers: %s - %s  " (Int64.to_string (op_res_m op1)) (Int64.to_string (op_res_m op2));
+        Printf.printf "subtracted 2 numbers: %s - %s  " (Int64.to_string (op_res_m op2)) (Int64.to_string (op_res_m op1));
         store_data (sol.value, op2);
-        setFlags sol
+        setFlags sol;
+        incrRip
       | (Imulq, [op1;op2]) ->
         let sol = mul (op_res_m op1) (op_res_m op2) in
         store_data (sol.value, op2);
-        setFlags sol
+        setFlags sol;
+        incrRip
       | (Incq, [op]) ->
         let sol = succ (op_res_m op) in
         store_data (sol.value, op);
-        setFlags sol
+        setFlags sol;
+        incrRip
       | (Decq, [op]) ->
         let sol = pred (op_res_m op) in
         store_data (sol.value, op);
-        setFlags sol
+        setFlags sol;
+        incrRip
       | (Notq, [op]) ->
         let sol = Int64.lognot (op_res_m op) in
         store_data (sol, op);
+        incrRip
       | (Andq, [op1;op2]) ->
         let sol = Int64.logand (op_res_m op1) (op_res_m op2) in
         store_data (sol, op2);
-        setFlags (ok sol)
+        setFlags (ok sol);
+        incrRip
       | (Orq, [op1;op2]) ->
         let sol = Int64.logor (op_res_m op1) (op_res_m op2) in
         store_data (sol, op2);
-        setFlags (ok sol)
+        setFlags (ok sol);
+        incrRip
       | (Xorq, [op1;op2]) ->
         let sol = Int64.logxor (op_res_m op1) (op_res_m op2) in
         store_data (sol, op2);
-        setFlags (ok sol)
+        setFlags (ok sol);
+        incrRip
       | (Sarq, [amt;dest]) ->
         let sol = Int64.shift_right (op_res_m dest) (Int64.to_int (op_res_m amt)) in
         store_data (sol, dest);
-        setFlags (ok sol)
+        setFlags (ok sol);
+        incrRip
       | (Shlq, [amt;dest]) ->
         let sol = mul (op_res_m dest) (Int64.shift_left 1L (Int64.to_int (op_res_m amt))) in
         store_data (sol.value, dest);
-        setFlags sol
+        setFlags sol;
+        incrRip
       | (Shrq, [amt;dest]) ->
         let sol = Int64.shift_right_logical (op_res_m dest) (Int64.to_int (op_res_m amt)) in
         store_data (sol, dest);
-        setFlags (ok sol)
+        setFlags (ok sol);
+        incrRip
       | (Set c, [op1]) ->
         if interp_cnd m.flags c then
           store_data (1L, op1)
         else
-          store_data (0L, op1)
+          store_data (0L, op1);
+          incrRip
       | (Leaq, [ind;dest]) ->
         begin match ind with
         | Ind1 i -> store_data ((quad_of_imm i), dest)
         | Ind2 r -> store_data (m.regs.(rind r), dest)
         | Ind3 (i,r) -> store_data (Int64.add (m.regs.(rind r)) (quad_of_imm i), dest)
         | _ -> failwith "invalid addressing"
-      end
+      end;
+      incrRip
       | (Movq, [op1;op2]) ->
         store_data ((op_res_m op1), op2);
-        Printf.printf "moved %s\n" (Int64.to_string(op_res_m op1))
+        (*Printf.printf "moved %s\n" (Int64.to_string(op_res_m op1));*)
+        incrRip
       | (Pushq, [op]) ->
         m.regs.(rind Rsp) <- (Int64.sub m.regs.(rind Rsp) 8L);
-        store_data ((op_res_m op), Ind2 Rsp)
-      | (Popq, [op]) ->
-        store_data ((op_res_m (Ind2 Rsp)), op);
-        m.regs.(rind Rsp) <- (Int64.add m.regs.(rind Rsp) 8L)
+        store_data ((op_res_m op), Ind2 Rsp);
+        incrRip
+      | (Popq, [dest]) ->
+        store_data ((op_res_m (Ind2 Rsp)), dest);
+        m.regs.(rind Rsp) <- (Int64.add m.regs.(rind Rsp) 8L);
+        Printf.printf "Rsp = %d\n" (Int64.to_int m.regs.(rind Rsp));
+        incrRip
       | (Cmpq, [op1;op2]) ->
         let sol = sub (op_res_m op2) (op_res_m op1) in
-        setFlags sol
+        setFlags sol;
+        incrRip
       | (Jmp, [op]) ->
         m.regs.(rind Rip) <- (op_res_m op)
       | (Callq, [op]) ->
@@ -386,14 +423,13 @@ let step (m:mach) : unit =
         if interp_cnd m.flags c then
           m.regs.(rind Rip) <- (op_res_m op)
         else
-          ()
+          incrRip
       | _ -> failwith "Invalid Instr"
   end in
 
   
   operand_exec get_instr
-  (*Printf.printf "rax = %d; 65528 = %d \n" (Int64.to_int m.regs.(rind Rax)) (Int64.to_int(get_quad_from_addr 65528))*)
-
+  
 (* Runs the machine until the rip register reaches a designated
    memory address. Returns the contents of %rax when the 
    machine halts. *)

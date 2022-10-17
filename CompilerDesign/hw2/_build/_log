@@ -6,7 +6,7 @@ ocamlfind ocamldep -modules util/assert.mli > util/assert.mli.depends # cached
 # Target: util/assert.cmi, tags: { byte, compile, extension:mli, file:util/assert.mli, interf, ocaml, quiet, traverse }
 ocamlfind ocamlc -c -I util -I x86 -o util/assert.cmi util/assert.mli # cached
 # Target: gradedtests.ml.depends, tags: { package(num), extension:ml, file:gradedtests.ml, ocaml, ocamldep, quiet, traverse }
-ocamlfind ocamldep -package num -modules gradedtests.ml > gradedtests.ml.depends
+ocamlfind ocamldep -package num -modules gradedtests.ml > gradedtests.ml.depends # cached
 # Target: simulator.ml.depends, tags: { package(num), extension:ml, file:simulator.ml, ocaml, ocamldep, quiet, traverse }
 ocamlfind ocamldep -package num -modules simulator.ml > simulator.ml.depends
 # Target: x86/x86.ml.depends, tags: { extension:ml, file:x86/x86.ml, ocaml, ocamldep, quiet, traverse }
