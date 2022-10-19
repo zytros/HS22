@@ -244,13 +244,10 @@ let step (m:mach) : unit =
 
   let store_data_mem (v , address) =
     Array.blit (Array.of_list (sbytes_of_int64 v)) 0 m.mem address 8;
-    Printf.printf "stored %d at %d\n" (Int64.to_int v) (address);
-    Printf.printf "%d contains %d\n--------------------------------\n" address (Int64.to_int(get_quad_from_addr address))
   in
 
   let store_data_reg (v, r) = 
     Array.set m.regs (rind r) v;
-    Printf.printf "stored %s in reg %d\n" (Int64.to_string v) (rind r)
   in
 
   let store_data (v, op) =
@@ -283,9 +280,6 @@ let step (m:mach) : unit =
     end
   end in
     
-  let bool_toString b =
-    if b then "true" else "false"
-  in
 
   let setFlags (sol:t) : unit =
     m.flags.fo <- sol.overflow;
@@ -298,7 +292,6 @@ let step (m:mach) : unit =
     else
       m.flags.fz <- false;
 
-    Printf.printf "For val %s got flags OF: %s, SF: %s, ZF: %s\n" (Int64.to_string sol.value) (bool_toString sol.overflow) (bool_toString m.flags.fs) (bool_toString m.flags.fz)
   in
 
   let incrRip =
@@ -311,7 +304,7 @@ let step (m:mach) : unit =
     begin match b with
     | InsFrag -> failwith "excpected InsB0, got InsFrag"
     | Byte _ -> failwith "excpected InsB0, got Byte"
-    | InsB0 ins -> Printf.printf "Instr: %s\n" (instr_to_string ins);
+    | InsB0 ins -> 
       match ins with
       | (Negq, [op1]) ->
         let sol = neg (op_res_m op1) in
@@ -320,13 +313,11 @@ let step (m:mach) : unit =
         incrRip
       | (Addq, [op1;op2]) ->
         let sol = add (op_res_m op1) (op_res_m op2) in
-        Printf.printf "added 2 numbers together: %s + %s  " (Int64.to_string (op_res_m op1)) (Int64.to_string (op_res_m op2));
         store_data (sol.value, op2);
         setFlags sol;
         incrRip
       | (Subq, [op1;op2]) ->
         let sol = sub (op_res_m op2) (op_res_m op1) in
-        Printf.printf "subtracted 2 numbers: %s - %s  " (Int64.to_string (op_res_m op2)) (Int64.to_string (op_res_m op1));
         store_data (sol.value, op2);
         setFlags sol;
         incrRip
@@ -395,7 +386,6 @@ let step (m:mach) : unit =
       incrRip
       | (Movq, [op1;op2]) ->
         store_data ((op_res_m op1), op2);
-        (*Printf.printf "moved %s\n" (Int64.to_string(op_res_m op1));*)
         incrRip
       | (Pushq, [op]) ->
         m.regs.(rind Rsp) <- (Int64.sub m.regs.(rind Rsp) 8L);
@@ -404,7 +394,6 @@ let step (m:mach) : unit =
       | (Popq, [dest]) ->
         store_data ((op_res_m (Ind2 Rsp)), dest);
         m.regs.(rind Rsp) <- (Int64.add m.regs.(rind Rsp) 8L);
-        Printf.printf "Rsp = %d\n" (Int64.to_int m.regs.(rind Rsp));
         incrRip
       | (Cmpq, [op1;op2]) ->
         let sol = sub (op_res_m op2) (op_res_m op1) in
@@ -437,7 +426,6 @@ let run (m:mach) : int64 =
   while m.regs.(rind Rip) <> exit_addr do step m done;
   m.regs.(rind Rax)
 
-(* assembling and linking --------------------------------------------------- *)
 
 (* A representation of the executable *)
 type exec = { entry    : quad              (* address of the entry point *)
@@ -468,8 +456,64 @@ exception Redefined_sym of lbl
 
   HINT: List.fold_left and List.fold_right are your friends.
  *)
+
+
 let assemble (p:prog) : exec =
-failwith "assemble unimplemented"
+
+  let separate es =
+    let rec separate_aux (es,t,d) =
+      begin match es with
+      | [] -> (t,d)
+      | x::xs ->
+        begin match x.asm with
+        | Text i -> separate_aux (xs,t@[x],d)
+        | Data da -> separate_aux (xs, t, d@[x])
+      end 
+    end in
+    separate_aux (es,[],[])
+    in
+  
+  let getTextElems = 
+    fst (separate p)
+  in
+
+  let getDataElems (t,d) =
+    snd (separate p)
+  in
+
+  let dataSegToSbyte xs =
+    List.concat (List.map sbytes_of_data xs)
+  in
+
+  let textSegToSbyte xs =
+    List.concat (List.map sbytes_of_ins xs)
+  in
+
+  let ptoinsl pr =
+    begin match pr.asm with
+    | Text t -> t
+    | _ -> failwith "wasdata"
+  end in
+
+  let len_text (textSeg) =
+    List.length textSeg
+  in
+
+  let len_data (dataSeg) : int =
+    List.length dataSeg
+  in
+
+  let rec searchList (x::xs) y n =
+    if x = y then n else searchList xs y (n+1)
+  in
+
+  let create_exec e tp dp ts ds: exec = 
+    {entry = e; text_pos = tp; data_pos = dp; text_seg = ts; data_seg = ds}
+  in
+
+  create_exec 0L 0L 0L [] []
+
+
 
 (* TASK 2 
   Convert an object file into an executable machine state. 
