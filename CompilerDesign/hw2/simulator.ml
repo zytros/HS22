@@ -489,18 +489,47 @@ let assemble (p:prog) : exec =
     List.concat (List.map sbytes_of_ins xs)
   in
 
-  let ptoinsl pr =
-    begin match pr.asm with
-    | Text t -> t
-    | _ -> failwith "wasdata"
-  end in
-
   let len_text (textSeg) =
-    List.length textSeg
+    (List.length textSeg) * 8
   in
 
-  let len_data (dataSeg) : int =
-    List.length dataSeg
+  let len_data (dataSeg) =
+    let len_data_aux x =
+      begin match x with
+      | Asciz s -> (String.length s) + 1
+      | Quad i -> 8
+    end in
+    List.fold_right (+) (List.map len_data_aux dataSeg) 0
+  in
+
+  let createPosList xs =
+    let aux1 (y:elem) =
+      begin match y.asm with
+      | Text t -> (y.lbl, len_text t)
+      | Data d -> (y.lbl, len_data d)
+    end in
+    let rec aux2 ts acc =
+      begin match ts with
+      |[] -> []
+      |(lb,le)::xs -> [(lb, acc)] @ aux2 xs (le + acc)
+    end in
+    aux2 (List.map aux1 xs) 0
+  in
+
+  let addBaseAddr xs baseaddr =
+    let aux (l,a) = (a,l + baseaddr) in
+    List.map aux xs
+  in
+
+  let replaceLabel elems posList =
+    let rec lblToQuad label (y::ys) =
+      begin match (y::ys) with
+      | [] -> failwith "no Label found"
+      | (label,q)::_ -> Lit q
+      | (_,_)::xs -> lblToQuad label xs
+    end in
+    (* funktion welche elem list nimmt, daraus data/instr lists macht, und lblToQuad ausführt*)
+    failwith "aaaaah"
   in
 
   let rec searchList (x::xs) y n =
