@@ -89,27 +89,15 @@ let lookup m x = List.assoc x m
    the X86 instruction that moves an LLVM operand into a designated
    destination (usually a register).
 *)
-
-let convertOperand ctxt =
-  function
-  | Const i -> Imm (Lit i)
-  | Id uid -> lookup ctxt.layout uid
-  | Null -> Imm (Lit 0L)
-  | _ -> failwith "Can not convert gid"
-
 let compile_operand (ctxt:ctxt) (dest:X86.operand) : Ll.operand -> ins =
-  fun x -> 
-  begin match x with
-  | Gid gid -> (Leaq, [Ind3 (Lbl (Platform.mangle gid), Rip); dest])
-  | _ -> let source = convertOperand ctxt x in
-  begin match source with
-  | Imm _ | Reg _ -> (Movq, [source; dest])
-  | Ind1 _ | Ind2 _ | Ind3 _ -> 
-    begin match dest with
-    | Imm _ | Reg _ -> (Movq, [source; dest])
-    | Ind1 _ | Ind2 _ | Ind3 _ -> failwith "two mem op"
-  end end end
-    
+  let aux op =
+    begin match op with
+    | Null -> (Movq, [Imm (Lit 0L); dest])
+    | Const n -> (Movq, [Imm (Lit n); dest])
+    | Gid a -> failwith "hä"
+    | Id a -> (Movq, [(lookup ctxt.layout a); dest])
+  end in
+  aux
 
 
 
@@ -195,37 +183,8 @@ end
       in (4), but relative to the type f the sub-element picked out
       by the path so far
 *)
-let rec listN n xs =
-  if n <= 0 then [] else
-  begin match xs with
-  | y::ys -> y::(listN (n-1) ys)
-  | [] -> failwith "list too short"
-end
-
-let rec gep_insl ctxt ty path =
-  begin match path with
-  | [] -> []
-  | op::p -> 
-    begin match ty with 
-    | Struct tys -> 
-      begin match op with
-      | Const n ->
-        let i = Int64.to_int n in
-        let ty = List.nth tys i in
-        let offsetT = listN i tys in
-        let offsetB = List.fold_right (+) (List.map (size_ty ctxt.tdecls) offsetT) 0 in
-        (Addq, [Imm (Lit (Int64.of_int offsetB)); Reg Rax]):: gep_insl ctxt ty p
-      | _ -> failwith "need constant (4.1)"
-    end
-  | Array (n,ty) ->
-    let 
-
-
 let compile_gep (ctxt:ctxt) (op : Ll.ty * Ll.operand) (path: Ll.operand list) : ins list =
-begin match fst op with 
-| Ptr a -> failwith ""
-| _ -> failwith "op isnt a pointer7"
-end 
+failwith "compile_gep not implemented"
 
 
 
