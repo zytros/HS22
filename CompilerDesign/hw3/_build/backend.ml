@@ -89,15 +89,27 @@ let lookup m x = List.assoc x m
    the X86 instruction that moves an LLVM operand into a designated
    destination (usually a register).
 *)
+
+let convertOperand ctxt =
+  function
+  | Const i -> Imm (Lit i)
+  | Id uid -> lookup ctxt.layout uid
+  | Null -> Imm (Lit 0L)
+  | _ -> failwith "Can not convert gid"
+
 let compile_operand (ctxt:ctxt) (dest:X86.operand) : Ll.operand -> ins =
-  let aux op =
-    begin match op with
-    | Null -> (Movq, [Imm (Lit 0L); dest])
-    | Const n -> (Movq, [Imm (Lit n); dest])
-    | Gid a -> failwith "hä"
-    | Id a -> (Movq, [(lookup ctxt.layout a); dest])
-  end in
-  aux
+  fun x -> 
+  begin match x with
+  | Gid gid -> (Leaq, [Ind3 (Lbl (Platform.mangle gid), Rip); dest])
+  | _ -> let source = convertOperand ctxt x in
+  begin match source with
+  | Imm _ | Reg _ -> (Movq, [source; dest])
+  | Ind1 _ | Ind2 _ | Ind3 _ -> 
+    begin match dest with
+    | Imm _ | Reg _ -> (Movq, [source; dest])
+    | Ind1 _ | Ind2 _ | Ind3 _ -> failwith "two mem op"
+  end end end
+    
 
 
 
@@ -119,9 +131,45 @@ let compile_operand (ctxt:ctxt) (dest:X86.operand) : Ll.operand -> ins =
 
    [ NOTE: Don't forget to preserve caller-save registers (only if
    needed). ]
+   Why is this missing????????????????????
 *)
+let rec zip xs ys =
+  begin match xs with
+  | [] -> []
+  | b::bs -> 
+    begin match ys with
+    | [] -> []
+    | c::cs -> (b,c)::zip bs cs
+  end
+end
 
+let id x = x
+let compCall ctxt fn args ty dest =
+  let callInsL = [compile_operand ctxt (Reg Rax) fn; Callq, [Reg Rax]] in
+  let nArgs = zip (List.init (List.length args) id) (snd @@ List.split args) in
+  let getReg i =
+    begin match i with
+    | 0 -> Reg Rdi
+    | 1 -> Reg Rsi
+    | 2 -> Reg Rdx
+    | 3 -> Reg Rcx
+    | 4 -> Reg R08
+    | 5 -> Reg R09
+    | _ -> failwith ">= 6"
+  end in
+  let fetchArg ctxt i arg =
+    if i < 6 then
+      let dest = getReg i in
+      [compile_operand ctxt (Reg Rax) arg; Movq, [Reg Rax; dest]]
+    else
+      [compile_operand ctxt (Reg Rax) arg; Pushq, [Reg Rax]]
+  in
+  let argsPos = List.concat @@ List.map (fun (i,arg) -> fetchArg ctxt i arg) (List.rev nArgs) in
+  
 
+  let argsOnStack = List.length @@ List.filter (fun (i,arg) -> i >= 6) nArgs in
+  let resetStack = (Addq, [Imm (Lit (Int64.of_int (8*argsOnStack))); Reg Rsp]) in
+  argsPos @ callInsL @ ((Movq, [Reg Rax; dest])::[resetStack])
 
 
 (* compiling getelementptr (gep)  ------------------------------------------- *)
@@ -177,14 +225,52 @@ end
      - if t is an array, the index can be any operand, and its
        value determines the offset within the array.
 
-     - if t is any other type, the path is invalid
+     - if t is any other type, the path is invalid 
 
    5. if the index is valid, the remainder of the path is computed as
       in (4), but relative to the type f the sub-element picked out
       by the path so far
 *)
+
 let compile_gep (ctxt:ctxt) (op : Ll.ty * Ll.operand) (path: Ll.operand list) : ins list =
-failwith "compile_gep not implemented"
+
+  let rec listN n xs =
+  if n <= 0 then [] else
+  begin match xs with
+  | y::ys -> y::(listN (n-1) ys)
+  | [] -> failwith "list too short"
+end in
+
+  let rec gep_insl ctxt ty path =
+  begin match path with
+  | [] -> []
+  | op::p -> 
+    begin match ty with 
+    | Struct tys -> 
+      begin match op with
+      | Const n ->
+        let i = Int64.to_int n in
+        let ty = List.nth tys i in
+        let offsetT = listN i tys in
+        let offsetB = List.fold_right (+) (List.map (size_ty ctxt.tdecls) offsetT) 0 in
+        (Addq, [Imm (Lit (Int64.of_int offsetB)); Reg Rax]):: gep_insl ctxt ty p
+      | _ -> failwith "need constant (4.1)"
+    end
+  | Array (n,ty) ->
+    let elemSize = Int64.of_int @@ size_ty ctxt.tdecls ty in
+    compile_operand ctxt (Reg Rcx) op::(Imulq, [Imm (Lit elemSize); Reg Rcx])::(Addq, [Reg Rcx; Reg Rax])::gep_insl ctxt ty p
+  | Namedt nid -> gep_insl ctxt (lookup ctxt.tdecls nid) p
+  | Fun _ -> failwith "no gep into Fun"
+  | Ptr ty -> failwith "no gep into ptr"
+  | I1 | I8 | I64 | Void -> failwith "no gep in const or void"
+  end
+end in
+
+begin match fst op with 
+| Ptr a -> 
+  (compile_operand ctxt (Reg Rax) (snd op))::(gep_insl ctxt (Array (1,a)) path) 
+| _ -> failwith "op isnt a pointer, need pointer for gep"
+end 
 
 
 
@@ -212,7 +298,47 @@ failwith "compile_gep not implemented"
    - Bitcast: does nothing interesting at the assembly level
 *)
 let compile_insn (ctxt:ctxt) ((uid:uid), (i:Ll.insn)) : X86.ins list =
-      failwith "compile_insn not implemented"
+
+  let op = compile_operand ctxt in
+
+  let compBOP ctxt bop op1 op2 dest =
+    let ins_of_bop =
+      begin match bop with
+      | Add -> X86.Addq
+      | Sub -> X86.Subq
+      | Mul -> X86.Imulq
+      | Shl -> X86.Shlq
+      | Lshr -> X86.Shrq
+      | Ashr -> X86.Sarq
+      | And -> X86.Andq
+      | Or -> X86.Orq
+      | Xor -> X86.Xorq
+    end in
+      [op (Reg Rax) op1; op (Reg Rcx) op2;ins_of_bop, [Reg Rcx; Reg Rax]; Movq, [Reg Rax; dest]]
+  in
+
+  let compAlloca b dest = [Subq, [Imm (Lit (Int64.of_int b)); Reg Rsp]; Movq,[Reg Rsp; dest]] in
+
+  let compLoad ctxt ptr dest = [op (Reg Rax) ptr; Movq, [Ind2 Rcx; Reg Rax]; Movq, [Reg Rax; dest]] in
+
+  let compStore ctxt ptr dest = [op (Reg Rax) ptr; op (Reg Rcx) dest; Movq, [Reg Rax; Ind2 Rcx]] in
+
+  let compBitcast ctxt ptr dest = [op (Reg Rax) ptr; Movq, [Reg Rax; dest]] in
+
+  let compICMP ctxt cond op1 op2 dest =
+    [op (Reg Rcx) op1; op (Reg Rdx) op2; Movq, [Imm (Lit 0L); Reg Rax]; Cmpq, [Reg Rdx; Reg Rcx]; Set (compile_cnd cond), [Reg Rax]; Movq, [Reg Rax; dest]] in
+  
+  let dest = convertOperand ctxt (Id uid) in
+  begin match i with
+  | Binop (bop, ty, op1, op2) -> compBOP ctxt bop op1 op2 dest
+  | Alloca t -> compAlloca (size_ty ctxt.tdecls t) dest
+  | Load (t,p) -> compLoad ctxt p dest
+  | Store (t, src, p) -> compStore ctxt src p
+  | Icmp (cond, t, op1, op2) -> compICMP ctxt cond op1 op2 dest
+  | Call (t, fn, args) -> compCall ctxt fn args t dest
+  | Bitcast (t1, p, t2) -> compBitcast ctxt p dest
+  | Gep (t, op, ops) -> compile_gep ctxt (t, op) ops
+  end
 
 
 
