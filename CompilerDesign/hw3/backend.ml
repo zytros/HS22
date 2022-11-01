@@ -233,45 +233,42 @@ end
 *)
 
 
-let compile_gep (ctxt:ctxt) (op : Ll.ty * Ll.operand) (path: Ll.operand list) : ins list =
 
-  let rec headN n xs =
+let rec haskeltake n xs =
   if n <= 0 then [] else
   begin match xs with
-  | y::ys -> y::(headN (n-1) ys)
-  | [] -> failwith "list too short"
-end in
+    | y::ys -> y::(haskeltake (n-1) ys)
+    | [] -> failwith "haskeltake list too short"
+  end
 
-  let rec gepInsL ctxt ty path =
-  begin match path with
+let rec compileGEPAuxL ctxt ty p =
+  begin match p with
   | [] -> []
-  | op::p -> 
-    begin match ty with 
-    | Struct tys -> 
+  | op::ops ->
+    begin match ty with
+    | Struct tys ->
       begin match op with
       | Const n ->
-        let i = Int64.to_int n in
-        let ty = List.nth tys i in
-        let offsetT = headN i tys in
-        let offsetB = List.fold_right (+) (List.map (size_ty ctxt.tdecls) offsetT) 0 in
-        (Addq, [Imm (Lit (Int64.of_int offsetB)); Reg Rax]):: gepInsL ctxt ty p
-      | _ -> failwith "need constant (4.1)"
+        let nn = Int64.to_int n in
+        let ty = List.nth tys nn in
+        let numT = haskeltake nn tys in
+        let numB = List.fold_right (+) (List.map (size_ty ctxt.tdecls) numT) 0 in
+        (Addq, [Imm (Lit (Int64.of_int numB)); Reg Rax])::compileGEPAuxL ctxt ty ops
+      | _ -> failwith "compileGEPAuxL failed"
     end
   | Array (n,ty) ->
-    let elemSize = Int64.of_int @@ size_ty ctxt.tdecls ty in
-    compile_operand ctxt (Reg Rcx) op::(Imulq, [Imm (Lit elemSize); Reg Rcx])::(Addq, [Reg Rcx; Reg Rax])::gepInsL ctxt ty p
-  | Namedt nid -> gepInsL ctxt (lookup ctxt.tdecls nid) p
-  | Fun _ -> failwith "no gep into Fun"
-  | Ptr ty -> failwith "no gep into ptr"
-  | I1 | I8 | I64 | Void -> failwith "no gep in const or void"
-  end
-end in
+    let elemSize = Int64.of_int (size_ty ctxt.tdecls ty) in
+    compile_operand ctxt (Reg Rcx) op::(Imulq, [Imm (Lit elemSize); Reg Rcx])::(Addq, [Reg Rcx; Reg Rax])::compileGEPAuxL ctxt ty ops
+  | Namedt tid -> compileGEPAuxL ctxt (lookup ctxt.tdecls tid) p
+  | _ -> failwith "compile GEP wrong base"
+  end end
 
-begin match (fst op) with 
-| Ptr a -> 
-  (compile_operand ctxt (Reg Rax) (snd op))::(gepInsL ctxt (Array (1,a)) path) 
-| _ -> failwith "op isnt a pointer, need pointer for gep"
-end 
+
+let compile_gep (ctxt:ctxt) (op : Ll.ty * Ll.operand) (path: Ll.operand list) : ins list =
+  begin match fst op with
+  | Ptr ty -> (compile_operand ctxt (Reg Rax) (snd op))::(compileGEPAuxL ctxt (Array (1, ty)) path)
+  | _ -> failwith "compileGEP no pointr"
+end
 
 (* compiling instructions  -------------------------------------------------- *)
 
@@ -298,15 +295,10 @@ end
 *)
 
 
-
 let compile_insn (ctxt:ctxt) ((uid:uid), (i:Ll.insn)) : X86.ins list =
-
-  
-
-  let compBOP ctxt bop op1 op2 dest =
+  let compBinOP ctxt binop op1 op2 dest =
     let op = compile_operand ctxt in
-    let ins_of_bop =
-      begin match bop with
+    let bop_ins = begin match binop with
       | Add -> X86.Addq
       | Sub -> X86.Subq
       | Mul -> X86.Imulq
@@ -317,38 +309,35 @@ let compile_insn (ctxt:ctxt) ((uid:uid), (i:Ll.insn)) : X86.ins list =
       | Or -> X86.Orq
       | Xor -> X86.Xorq
     end in
-      [op (Reg Rax) op1; op (Reg Rcx) op2;ins_of_bop, [Reg Rcx; Reg Rax]; Movq, [Reg Rax; dest]]
-  in
-
-  let compAlloca b dest = [Subq, [Imm (Lit (Int64.of_int b)); Reg Rsp]; Movq,[Reg Rsp; dest]] in
-
-  let compLoad ctxt ptr dest = 
+    op (Reg Rax) op1 :: op (Reg Rcx) op2 :: (bop_ins, [Reg Rcx; Reg Rax]) :: (Movq, [Reg Rax; dest]) :: []
+in
+  let compile_alloca n dest =
+    (Subq, [Imm (Lit (Int64.of_int n)); Reg Rsp]) :: (Movq, [Reg Rsp; dest]) :: [] in
+  let compile_load ctxt ptr dest =
     let op = compile_operand ctxt in
-    [op (Reg Rax) ptr; Movq, [Ind2 Rcx; Reg Rax]; Movq, [Reg Rax; dest]] in
-
-  let compStore ctxt ptr dest = 
+    op (Reg Rcx) ptr :: (Movq, [Ind2 Rcx; Reg Rax]) :: (Movq, [Reg Rax; dest]) :: [] in
+  let compile_store ctxt ptr dest_ptr =
     let op = compile_operand ctxt in
-    [op (Reg Rax) ptr; op (Reg Rcx) dest; Movq, [Reg Rax; Ind2 Rcx]] in
-
-  let compBitcast ctxt ptr dest = 
+    op (Reg Rax) ptr :: op (Reg Rcx) dest_ptr :: (Movq, [Reg Rax; Ind2 Rcx]) :: [] in
+  let compile_bitcast ctxt ptr dest =
     let op = compile_operand ctxt in
-    [op (Reg Rax) ptr; Movq, [Reg Rax; dest]] in
-
-  let compICMP ctxt cond op1 op2 dest =
+    op (Reg Rax) ptr :: (Movq, [Reg Rax; dest]) :: [] in
+  let compile_icmp ctxt cnd op1 op2 dest =
     let op = compile_operand ctxt in
-    [op (Reg Rcx) op1; op (Reg Rdx) op2; Movq, [Imm (Lit 0L); Reg Rax]; Cmpq, [Reg Rdx; Reg Rcx]; Set (compile_cnd cond), [Reg Rax]; Movq, [Reg Rax; dest]] in
+    op (Reg Rcx) op1::op (Reg Rdx) op2::(Movq, [Imm (Lit 0L); Reg Rax])::
+    (Cmpq, [Reg Rdx; Reg Rcx])::(Set (compile_cnd cnd), [Reg Rax])::(Movq, [Reg Rax; dest])::[] in
   
-  let dest = convertOperand ctxt (Id uid) in
+let dest = convertOperand ctxt (Id uid) in
   begin match i with
-  | Binop (bop, ty, op1, op2) -> compBOP ctxt bop op1 op2 dest
-  | Alloca t -> compAlloca (size_ty ctxt.tdecls t) dest
-  | Load (t,p) -> compLoad ctxt p dest
-  | Store (t, src, p) -> compStore ctxt src p
-  | Icmp (cond, t, op1, op2) -> compICMP ctxt cond op1 op2 dest
-  | Call (t, fn, args) -> compCall ctxt fn args t dest
-  | Bitcast (t1, p, t2) -> compBitcast ctxt p dest
-  | Gep (t, op, ops) -> compile_gep ctxt (t, op) ops @ [Movq, [Reg Rax; dest]](* move into dest *)
-  end
+    | Binop (bop, ty, op1, op2) -> compBinOP ctxt bop op1 op2 dest
+    | Alloca (ty) -> compile_alloca (size_ty ctxt.tdecls ty) dest
+    | Load (ty, ptr) -> compile_load ctxt ptr dest
+    | Store (ty, src, dest_ptr) -> compile_store ctxt src dest_ptr
+    | Icmp (cnd, ty, op1, op2) -> compile_icmp ctxt cnd op1 op2 dest
+    | Call (ty, func, args) -> compCall ctxt func args ty dest     
+    | Bitcast (ty1, ptr, ty2) -> compile_bitcast ctxt ptr dest
+    | Gep (ty, op, ops) -> compile_gep ctxt (ty, op) ops @ [(Movq, [Reg Rax; dest])]
+    end
 
 
 
