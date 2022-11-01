@@ -232,7 +232,7 @@ end
       by the path so far
 *)
 
-(*
+
 let compile_gep (ctxt:ctxt) (op : Ll.ty * Ll.operand) (path: Ll.operand list) : ins list =
 
   let rec headN n xs =
@@ -272,47 +272,6 @@ begin match (fst op) with
   (compile_operand ctxt (Reg Rax) (snd op))::(gepInsL ctxt (Array (1,a)) path) 
 | _ -> failwith "op isnt a pointer, need pointer for gep"
 end 
-*)
-
-let rec take n ls =
-  if n <= 0 then [] else
-  begin match ls with
-    | a :: a' -> a :: (take (n-1) a')
-    | [] -> failwith "list not long enough"
-  end
-
-let rec gep_insns (ctxt:ctxt) (ty : Ll.ty) (path : Ll.operand list) : X86.ins list =
-begin match path with
-  | [] -> []
-  | op :: path' ->
-    begin match ty with
-      | (Struct tys) ->
-        begin match op with
-          | Const i64 ->
-            let i = Int64.to_int i64 in
-            let ty = List.nth tys i in
-            let mems_skipped = take i tys in
-            let bytes_skipped = List.fold_right (+) (List.map (size_ty ctxt.tdecls) mems_skipped) 0 in
-              (Addq, [Imm (Lit (Int64.of_int bytes_skipped)); Reg Rax]) :: gep_insns ctxt ty path'
-          | _ -> failwith "can only index into structs using constants"
-        end
-      | Array (n, ty) -> 
-        let size_of_elem = Int64.of_int @@ size_ty ctxt.tdecls ty in
-          compile_operand ctxt (Reg Rcx) op :: (Imulq, [Imm (Lit size_of_elem); Reg Rcx]) :: (Addq, [Reg Rcx; Reg Rax]) :: gep_insns ctxt ty path'
-      | Namedt tid -> gep_insns ctxt (lookup ctxt.tdecls tid) path
-      | Ptr ty -> failwith "cannot index into pointers"
-      | Void | I1 | I8 | I64 -> failwith "cannot index into constants"
-      | Fun _ -> failwith "cannot index into functions"
-    end
-end
-
-let compile_gep (ctxt:ctxt) ((ty_ptr, base) : Ll.ty * Ll.operand) (path : Ll.operand list) (dest : X86.operand) : ins list =
-  begin match ty_ptr with
-    | Ptr ty -> (compile_operand ctxt (Reg Rax) base) ::
-                ((gep_insns ctxt (Array (1, ty)) path)
-                @ [(Movq, [Reg Rax; dest])])
-    | _ -> failwith "type argument for GEP must be pointer"
-  end
 
 (* compiling instructions  -------------------------------------------------- *)
 
@@ -388,7 +347,7 @@ let compile_insn (ctxt:ctxt) ((uid:uid), (i:Ll.insn)) : X86.ins list =
   | Icmp (cond, t, op1, op2) -> compICMP ctxt cond op1 op2 dest
   | Call (t, fn, args) -> compCall ctxt fn args t dest
   | Bitcast (t1, p, t2) -> compBitcast ctxt p dest
-  | Gep (t, op, ops) -> compile_gep ctxt (t, op) ops dest (* @ [Movq, [Reg Rax; dest]](* move into dest *)*)
+  | Gep (t, op, ops) -> compile_gep ctxt (t, op) ops @ [Movq, [Reg Rax; dest]](* move into dest *)
   end
 
 
