@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cmath>
 // TODO 1: add OpenMP headers
+#include <omp.h>
 
 
 // evolution time
@@ -29,17 +30,26 @@ void WriteHistogram(const std::vector<double>& hh, std::string name) {
 // TODO 1: implement using OpenMP
 // Returns current wall-clock time in seconds
 double GetWtime() {
-  return 0;
+  return omp_get_wtime();
 }
 
 // TODO 3: parallelize with OpenMP
 // Returns histogram of positions xx in range [xmin,xmax] with nb bins
 std::vector<double> GetHistogram(const std::vector<double>& xx) {
   std::vector<double> hh(nb, 0);
-  for (size_t i = 0; i < xx.size(); ++i) {
-    int j = (xx[i] - xmin) / (xmax - xmin) * nb;
-    j = std::max(0, std::min(int(nb) - 1, j));
-    hh[j] += 1;
+  #pragma omp parallel
+  {
+    std::vector<double> lhh (nb, 0);
+    #pragma omp for nowait
+    for (size_t i = 0; i < xx.size(); ++i) {
+      int j = (xx[i] - xmin) / (xmax - xmin) * nb;
+      j = std::max(0, std::min(int(nb) - 1, j));
+      hh[j] += 1;
+    }
+    #pragma omp critical
+    for(size_t j = 0; j < hh.size(); j++){
+      hh[j] += lhh[j];
+    }
   }
   return hh;
 }
@@ -47,7 +57,7 @@ std::vector<double> GetHistogram(const std::vector<double>& xx) {
 int main(int argc, char *argv[]) {
   if (argc < 2 || argc > 3 || std::string(argv[1]) == "-h") {
     fprintf(stderr, "usage: %s N M\n", argv[0]);
-    fprintf(stderr, "Brownian motion of N paritcles in M steps in time");
+    fprintf(stderr, "Brownian motion of N paritcles in M steps in time\n");
     return 1;
   }
 
@@ -62,6 +72,16 @@ int main(int argc, char *argv[]) {
   int seed = 19;
   std::default_random_engine gen(seed);
 
+  struct Gen {
+    std::default_random_engine gen;
+    char p[64];    // padding to avoid false sharing
+  };
+
+  // local generators
+  std::vector<Gen> gg(omp_get_max_threads());
+  for (size_t p = 0; p < gg.size(); ++p) {
+    gg[p].gen.seed(gen());
+  }
   // Initialize particles
   std::vector<double> xx(N);
   {
@@ -78,9 +98,12 @@ int main(int argc, char *argv[]) {
   // Perform M steps of random walks and measure time
   // TODO 2: parallelize with OpenMP
   wt0 = GetWtime();
+  #pragma omp parallel
   {
+    size_t p = omp_get_thread_num();
+    std::normal_distribution<double> dis(0., std::sqrt(dt));
+    #pragma omp nowait
     for (size_t m = 0; m < M; ++m) {
-      std::normal_distribution<double> dis(0., std::sqrt(dt));
       for (size_t i = 0; i < N; ++i) {
         xx[i] += dis(gen);
       }

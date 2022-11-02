@@ -2,7 +2,7 @@ all: runplot
 
 # TODO 1: add OpenMP flags
 main: main.cpp Makefile
-	g++ -O3 -std=c++11 main.cpp -o main
+	g++ -O3 -std=c++11 main.cpp -o main -fopenmp
 
 run: main
 	./main 100000 100

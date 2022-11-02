@@ -146,7 +146,7 @@ end
 let id x = x
 let compCall ctxt fn args ty dest =
   let callInsL = [compile_operand ctxt (Reg Rax) fn; Callq, [Reg Rax]] in
-  let nArgs = zip (List.init (List.length args) id) (snd @@ List.split args) in
+  let nArgs = zip (List.init (List.length args) id) (snd (List.split args)) in
   let getReg i =
     begin match i with
     | 0 -> Reg Rdi
@@ -164,10 +164,10 @@ let compCall ctxt fn args ty dest =
     else
       [compile_operand ctxt (Reg Rax) arg; Pushq, [Reg Rax]]
   in
-  let argsPos = List.concat @@ List.map (fun (i,arg) -> fetchArg ctxt i arg) (List.rev nArgs) in
+  let argsPos = List.concat (List.map (fun (i,arg) -> fetchArg ctxt i arg) (List.rev nArgs)) in
   
 
-  let argsOnStack = List.length @@ List.filter (fun (i,arg) -> i >= 6) nArgs in
+  let argsOnStack = List.length (List.filter (fun (i,arg) -> i >= 6) nArgs) in
   let resetStack = Addq, [Imm (Lit (Int64.of_int (8*argsOnStack))); Reg Rsp] in
   argsPos @ callInsL @ ((Movq, [Reg Rax; dest])::[resetStack])
 
@@ -253,12 +253,12 @@ let rec compileGEPAuxL ctxt ty p =
         let ty = List.nth tys nn in
         let numT = haskeltake nn tys in
         let numB = List.fold_right (+) (List.map (size_ty ctxt.tdecls) numT) 0 in
-        (Addq, [Imm (Lit (Int64.of_int numB)); Reg Rax])::compileGEPAuxL ctxt ty ops
+        [Addq, [Imm (Lit (Int64.of_int numB)); Reg Rax]] @ compileGEPAuxL ctxt ty ops
       | _ -> failwith "compileGEPAuxL failed"
     end
   | Array (n,ty) ->
     let elemSize = Int64.of_int (size_ty ctxt.tdecls ty) in
-    compile_operand ctxt (Reg Rcx) op::(Imulq, [Imm (Lit elemSize); Reg Rcx])::(Addq, [Reg Rcx; Reg Rax])::compileGEPAuxL ctxt ty ops
+    [compile_operand ctxt (Reg Rcx) op; (Imulq, [Imm (Lit elemSize); Reg Rcx]); (Addq, [Reg Rcx; Reg Rax])] @ compileGEPAuxL ctxt ty ops
   | Namedt tid -> compileGEPAuxL ctxt (lookup ctxt.tdecls tid) p
   | _ -> failwith "compile GEP wrong base"
   end end
@@ -298,7 +298,7 @@ end
 let compile_insn (ctxt:ctxt) ((uid:uid), (i:Ll.insn)) : X86.ins list =
   let compBinOP ctxt binop op1 op2 dest =
     let op = compile_operand ctxt in
-    let bop_ins = begin match binop with
+    let lltoX86 = begin match binop with
       | Add -> X86.Addq
       | Sub -> X86.Subq
       | Mul -> X86.Imulq
@@ -309,33 +309,34 @@ let compile_insn (ctxt:ctxt) ((uid:uid), (i:Ll.insn)) : X86.ins list =
       | Or -> X86.Orq
       | Xor -> X86.Xorq
     end in
-    op (Reg Rax) op1 :: op (Reg Rcx) op2 :: (bop_ins, [Reg Rcx; Reg Rax]) :: (Movq, [Reg Rax; dest]) :: []
+    [op (Reg Rax) op1; op (Reg Rcx) op2; (lltoX86, [Reg Rcx; Reg Rax]); (Movq, [Reg Rax; dest])]
 in
-  let compile_alloca n dest =
-    (Subq, [Imm (Lit (Int64.of_int n)); Reg Rsp]) :: (Movq, [Reg Rsp; dest]) :: [] in
-  let compile_load ctxt ptr dest =
+  let compAlloca n dest =
+    [Subq, [Imm (Lit (Int64.of_int n)); Reg Rsp]; Movq, [Reg Rsp; dest]] in
+  let compLoad ctxt ptr dest =
     let op = compile_operand ctxt in
-    op (Reg Rcx) ptr :: (Movq, [Ind2 Rcx; Reg Rax]) :: (Movq, [Reg Rax; dest]) :: [] in
-  let compile_store ctxt ptr dest_ptr =
+    [op (Reg Rcx) ptr; Movq, [Ind2 Rcx; Reg Rax]; Movq, [Reg Rax; dest]] in
+  let compStore ctxt ptr dest_ptr =
     let op = compile_operand ctxt in
-    op (Reg Rax) ptr :: op (Reg Rcx) dest_ptr :: (Movq, [Reg Rax; Ind2 Rcx]) :: [] in
-  let compile_bitcast ctxt ptr dest =
+    [op (Reg Rax) ptr; op (Reg Rcx) dest_ptr; Movq, [Reg Rax; Ind2 Rcx]] in
+  let compICMP ctxt cnd op1 op2 dest =
     let op = compile_operand ctxt in
-    op (Reg Rax) ptr :: (Movq, [Reg Rax; dest]) :: [] in
-  let compile_icmp ctxt cnd op1 op2 dest =
-    let op = compile_operand ctxt in
-    op (Reg Rcx) op1::op (Reg Rdx) op2::(Movq, [Imm (Lit 0L); Reg Rax])::
-    (Cmpq, [Reg Rdx; Reg Rcx])::(Set (compile_cnd cnd), [Reg Rax])::(Movq, [Reg Rax; dest])::[] in
+    [op (Reg Rcx) op1; op (Reg Rdx) op2; Movq, [Imm (Lit 0L); Reg Rax];
+    Cmpq, [Reg Rdx; Reg Rcx]; Set (compile_cnd cnd), [Reg Rax]; Movq, [Reg Rax; dest]] in
+  let compBitcast ctxt ptr dest =
+      let op = compile_operand ctxt in
+      [op (Reg Rax) ptr; Movq, [Reg Rax; dest]] in
+  
   
 let dest = convertOperand ctxt (Id uid) in
   begin match i with
-    | Binop (bop, ty, op1, op2) -> compBinOP ctxt bop op1 op2 dest
-    | Alloca (ty) -> compile_alloca (size_ty ctxt.tdecls ty) dest
-    | Load (ty, ptr) -> compile_load ctxt ptr dest
-    | Store (ty, src, dest_ptr) -> compile_store ctxt src dest_ptr
-    | Icmp (cnd, ty, op1, op2) -> compile_icmp ctxt cnd op1 op2 dest
+    | Binop (binop, ty, op1, op2) -> compBinOP ctxt binop op1 op2 dest
+    | Alloca (ty) -> compAlloca (size_ty ctxt.tdecls ty) dest
+    | Load (ty, ptr) -> compLoad ctxt ptr dest
+    | Store (ty, src, dest) -> compStore ctxt src dest
+    | Icmp (cnd, ty, op1, op2) -> compICMP ctxt cnd op1 op2 dest
     | Call (ty, func, args) -> compCall ctxt func args ty dest     
-    | Bitcast (ty1, ptr, ty2) -> compile_bitcast ctxt ptr dest
+    | Bitcast (ty1, ptr, ty2) -> compBitcast ctxt ptr dest
     | Gep (ty, op, ops) -> compile_gep ctxt (ty, op) ops @ [(Movq, [Reg Rax; dest])]
     end
 
@@ -421,7 +422,7 @@ end
 let configUIDs (block_, lblBlock) = 
   let blockUIDs {insns; term} = List.map fst insns in
   let blocks = [block_] @ List.map snd lblBlock in
-  List.concat @@ List.map blockUIDs blocks
+  List.concat (List.map blockUIDs blocks)
 
 let stack_layout (args : uid list) ((block, lbled_blocks):cfg) : layout =
   let idents = args @ configUIDs (block, lbled_blocks) in

@@ -10,9 +10,11 @@
 // Use high resolution for benchmarking:
 // constexpr int WIDTH = 3840;
 // constexpr int HEIGHT = 2160 / 2;
+// WIDTH = 640
+// HEIGHT = 360 / 2
 // Use lower resolution for development:
-constexpr int WIDTH = 640;
-constexpr int HEIGHT = 360 / 2;
+constexpr int WIDTH = 3840;
+constexpr int HEIGHT = 2160 / 2;
 
 constexpr int MAX_ITERATIONS = 1000;
 short image[HEIGHT][WIDTH];
@@ -30,22 +32,27 @@ void julia_set(void) {
     auto t0 = std::chrono::steady_clock::now();
 
     // TODO: Parallelize.
-    for (int i = 0; i < HEIGHT; ++i)
-    for (int j = 0; j < WIDTH; ++j) {
-        // Compute `w = z_0 = x + i y` for the given pixel (j, i).
-        double x = 1.3 * (j - .5 * WIDTH) / HEIGHT;
-        double y = 1.3 *  i               / HEIGHT;  // Only one half.
+    #pragma omp parallel
+    {
+        #pragma omp for collapse(2) schedule(static, 32)
+        for (int i = 0; i < HEIGHT; ++i){
+            for (int j = 0; j < WIDTH; ++j) {
+                // Compute `w = z_0 = x + i y` for the given pixel (j, i).
+                double x = 1.3 * (j - .5 * WIDTH) / HEIGHT;
+                double y = 1.3 *  i               / HEIGHT;  // Only one half.
 
-        // Compute the number of iterations.
-        int count = 0;
-        while (x * x + y * y <= 4 && count < MAX_ITERATIONS) {
-            double nx = x * x - y * y + cx;
-            double ny = 2 * x * y + cy;
-            x = nx;
-            y = ny;
-            ++count;
+                // Compute the number of iterations.
+                int count = 0;
+                while (x * x + y * y <= 4 && count < MAX_ITERATIONS) {
+                    double nx = x * x - y * y + cx;
+                    double ny = 2 * x * y + cy;
+                    x = nx;
+                    y = ny;
+                    ++count;
+                }
+                image[i][j] = count;
+            }
         }
-        image[i][j] = count;
     }
     auto t1 = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = t1 - t0;
@@ -55,7 +62,7 @@ void julia_set(void) {
 
 /*
  * Compute the histogram of iteration count.
- *
+ * 
  * Returns an `std::vector<int>`, where `i`-th elements represents the number
  * of pixels that had `i` iterations.
  */
@@ -67,6 +74,21 @@ std::vector<int> compute_histogram(void) {
     //
     //       To check your result, you can run `make plot`
     //       to plot the computed histogram (not mandatory).
+
+    #pragma omp parallel
+    {
+        // Create a local histogram.
+        std::vector<int> local(MAX_ITERATIONS + 1);
+        #pragma omp for
+            for (int i = 0; i < HEIGHT; ++i)
+                for (int j = 0; j < WIDTH; ++j)
+                    ++local[image[i][j]];
+
+        // And reduce to the global histogram in a critial region.
+        #pragma omp critical
+            for (int i = 0; i < (int)local.size(); ++i)
+                result[i] += local[i];
+    }
 
     return result;
 }
