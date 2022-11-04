@@ -146,7 +146,7 @@ end
 let id x = x
 let compCall ctxt fn args ty dest =
   let callInsL = [compile_operand ctxt (Reg Rax) fn; Callq, [Reg Rax]] in
-  let nArgs = zip (List.init (List.length args) id) (snd @@ List.split args) in
+  let nArgs = zip (List.init (List.length args) id) (snd (List.split args)) in
   let getReg i =
     begin match i with
     | 0 -> Reg Rdi
@@ -167,7 +167,7 @@ let compCall ctxt fn args ty dest =
   let argsPos = List.concat (List.map (fun (i,arg) -> fetchArg ctxt i arg) (List.rev nArgs)) in
   
 
-  let argsOnStack = List.length @@ List.filter (fun (i,arg) -> i >= 6) nArgs in
+  let argsOnStack = List.length (List.filter (fun (i,arg) -> i >= 6) nArgs) in
   let resetStack = Addq, [Imm (Lit (Int64.of_int (8*argsOnStack))); Reg Rsp] in
   argsPos @ callInsL @ ((Movq, [Reg Rax; dest])::[resetStack])
 
@@ -298,7 +298,7 @@ end
 let compile_insn (ctxt:ctxt) ((uid:uid), (i:Ll.insn)) : X86.ins list =
   let compBinOP ctxt binop op1 op2 dest =
     let op = compile_operand ctxt in
-    let bop_ins = begin match binop with
+    let lltoX86 = begin match binop with
       | Add -> X86.Addq
       | Sub -> X86.Subq
       | Mul -> X86.Imulq
@@ -309,7 +309,7 @@ let compile_insn (ctxt:ctxt) ((uid:uid), (i:Ll.insn)) : X86.ins list =
       | Or -> X86.Orq
       | Xor -> X86.Xorq
     end in
-    [op (Reg Rax) op1; op (Reg Rcx) op2; (bop_ins, [Reg Rcx; Reg Rax]); (Movq, [Reg Rax; dest])]
+    [op (Reg Rax) op1; op (Reg Rcx) op2; (lltoX86, [Reg Rcx; Reg Rax]); (Movq, [Reg Rax; dest])]
 in
   let compAlloca n dest =
     [Subq, [Imm (Lit (Int64.of_int n)); Reg Rsp]; Movq, [Reg Rsp; dest]] in
@@ -330,10 +330,10 @@ in
   
 let dest = convertOperand ctxt (Id uid) in
   begin match i with
-    | Binop (bop, ty, op1, op2) -> compBinOP ctxt bop op1 op2 dest
+    | Binop (binop, ty, op1, op2) -> compBinOP ctxt binop op1 op2 dest
     | Alloca (ty) -> compAlloca (size_ty ctxt.tdecls ty) dest
     | Load (ty, ptr) -> compLoad ctxt ptr dest
-    | Store (ty, src, dest_ptr) -> compStore ctxt src dest_ptr
+    | Store (ty, src, dest) -> compStore ctxt src dest
     | Icmp (cnd, ty, op1, op2) -> compICMP ctxt cnd op1 op2 dest
     | Call (ty, func, args) -> compCall ctxt func args ty dest     
     | Bitcast (ty1, ptr, ty2) -> compBitcast ctxt ptr dest
@@ -378,7 +378,7 @@ end
    [blk]  - LLVM IR code for the block
 *)
 let compile_block (fn:string) (ctxt:ctxt) (blk:Ll.block) : ins list =
-  let synInsS = List.concat @@ List.map (compile_insn ctxt) blk.insns in
+  let synInsS = List.concat (List.map (compile_insn ctxt) blk.insns) in
   synInsS @ compile_terminator fn ctxt (snd blk.term)
 
 let compile_lbl_block fn lbl ctxt blk : elem =
