@@ -378,7 +378,7 @@ end
    [blk]  - LLVM IR code for the block
 *)
 let compile_block (fn:string) (ctxt:ctxt) (blk:Ll.block) : ins list =
-  let synInsS = List.concat @@ List.map (compile_insn ctxt) blk.insns in
+  let synInsS = List.concat (List.map (compile_insn ctxt) blk.insns) in
   synInsS @ compile_terminator fn ctxt (snd blk.term)
 
 let compile_lbl_block fn lbl ctxt blk : elem =
