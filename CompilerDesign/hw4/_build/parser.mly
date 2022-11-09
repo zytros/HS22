@@ -104,8 +104,6 @@ ty:
 gexp:
   | t=rtyp NULL  { loc $startpos $endpos @@ CNull t }
   | i=INT      { loc $startpos $endpos @@ CInt i }
-  | s=STRING    { loc $startpos $endpos @@ RString s }
-  | 
 
 lhs:  
   | id=IDENT            { loc $startpos $endpos @@ Id id }
