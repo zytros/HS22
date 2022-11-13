@@ -3,11 +3,15 @@
 
 type token = 
   | WHILE
+  | VERTBR
+  | VERT
   | VAR
   | TVOID
   | TSTRING
+  | TRUE
   | TINT
   | TILDE
+  | TBOOL
   | STRING of (string)
   | STAR
   | SEMI
@@ -17,20 +21,33 @@ type token =
   | RBRACE
   | PLUS
   | NULL
+  | NEW
+  | LTLT
+  | LTEQ
+  | LT
   | LPAREN
   | LBRACKET
   | LBRACE
   | INT of (int64)
   | IF
   | IDENT of (string)
+  | GTGTGT
+  | GTGT
+  | GTEQ
+  | GT
   | GLOBAL
+  | FOR
+  | FALSE
   | EQEQ
   | EQ
   | EOF
   | ELSE
   | DASH
   | COMMA
+  | BANGEQ
   | BANG
+  | AMPBR
+  | AMP
 
 (* This exception is raised by the monolithic API functions. *)
 

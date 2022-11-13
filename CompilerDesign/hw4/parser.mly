@@ -38,8 +38,36 @@ let loc (startpos:Lexing.position) (endpos:Lexing.position) (elt:'a) : 'a node =
 %token BANG     /* ! */
 %token GLOBAL   /* global */
 
+%token TBOOL
+%token FOR
+%token NEW
+
+%token TRUE   // true
+%token FALSE  // false
+%token VERT   // |
+%token AMP    // &
+%token BANGEQ // !=
+%token LT     // <
+%token GT     // >
+%token LTEQ   // <=
+%token GTEQ   // >=
+%token LTLT   // <<
+%token GTGT   // >>
+%token GTGTGT // >>>
+%token AMPBR  // [&]
+%token VERTBR // [|]
+
+%left VERT
+%left AMP
+%left VERTBR
+%left AMPBR
+%left EQEQ BANGEQ
+%left LT LTEQ GT GTEQ
+%left LTLT GTGT GTGTGT
+
 %left PLUS DASH
 %left STAR
+
 %nonassoc BANG
 %nonassoc TILDE
 %nonassoc LBRACKET
@@ -80,6 +108,7 @@ arglist:
     
 ty:
   | TINT   { TInt }
+  | TBOOL   { TBool }
   | r=rtyp { TRef r } 
 
 %inline ret_ty:
@@ -90,11 +119,27 @@ ty:
   | TSTRING { RString }
   | t=ty LBRACKET RBRACKET { RArray t }
 
+%inline cbool:
+  | TRUE  { true }
+  | FALSE { false }
+
 %inline bop:
   | PLUS   { Add }
   | DASH   { Sub }
   | STAR   { Mul }
   | EQEQ   { Eq }
+  | LTLT    { Shl }
+  | GTGT    { Shr }
+  | GTGTGT  { Sar }
+  | LT      { Lt }
+  | LTEQ    { Lte }
+  | GT      { Gt }
+  | GTEQ    { Gte }
+  | BANGEQ  { Neq }
+  | AMP     { And }
+  | VERT    { Or }
+  | AMPBR   { IAnd }
+  | VERTBR  { IOr }
 
 %inline uop:
   | DASH  { Neg }
@@ -104,8 +149,9 @@ ty:
 gexp:
   | t=rtyp NULL  { loc $startpos $endpos @@ CNull t }
   | i=INT      { loc $startpos $endpos @@ CInt i }
-  | s=STRING    { loc $startpos $endpos @@ RString s }
-  | 
+  | s=STRING    { loc $startpos $endpos @@ CStr s }
+  | b=cbool     { loc $startpos $endpos @@ CBool b}
+  | NEW t=ty LBRACKET RBRACKET LBRACE xs=separated_list(COMMA, exp) RBRACE { loc $startpos $endpos @@ CArr (t, xs)}
 
 lhs:  
   | id=IDENT            { loc $startpos $endpos @@ Id id }
@@ -113,16 +159,29 @@ lhs:
                         { loc $startpos $endpos @@ Index (e, i) }
 
 exp:
+  | e1=exp b=bop e2=exp  { loc $startpos $endpos @@ Bop (b,e1,e2) }
+  | e=expaux { e }
+
+expaux:
+  | u=uop e=expaux  { loc $startpos $endpos @@ Uop (u, e)}
+  | e=expauxaux { e }
+
+expauxaux:
+  | e=expauxaux LBRACKET n=exp RBRACKET { loc $startpos $endpos @@ Index (e, n) }
+  | e=expauxaux LPAREN xs=separated_list(COMMA, exp) RPAREN { loc $startpos $endpos @@ Call (e,xs)}
   | i=INT               { loc $startpos $endpos @@ CInt i }
   | t=rtyp NULL           { loc $startpos $endpos @@ CNull t }
-  | e1=exp b=bop e2=exp { loc $startpos $endpos @@ Bop (b, e1, e2) }
-  | u=uop e=exp         { loc $startpos $endpos @@ Uop (u, e) }
   | id=IDENT            { loc $startpos $endpos @@ Id id }
-  | e=exp LBRACKET i=exp RBRACKET
-                        { loc $startpos $endpos @@ Index (e, i) }
-  | e=exp LPAREN es=separated_list(COMMA, exp) RPAREN
-                        { loc $startpos $endpos @@ Call (e,es) }
+  | NEW t=ty LBRACKET RBRACKET LBRACE xs=separated_list(COMMA, exp) RBRACE  { loc $startpos $endpos @@ CArr (t,xs) }
+  | NEW t=ty LBRACKET e=exp RBRACKET  {
+    if t=TInt || t=TBool then
+      loc $startpos $endpos @@ NewArr (t,e)
+    else
+      failwith "init failed expauxaux"
+  }
   | LPAREN e=exp RPAREN { e } 
+
+
 
 vdecl:
   | VAR id=IDENT EQ init=exp { (id, init) }
@@ -137,6 +196,10 @@ stmt:
   | RETURN e=exp SEMI   { loc $startpos $endpos @@ Ret(Some e) }
   | WHILE LPAREN e=exp RPAREN b=block  
                         { loc $startpos $endpos @@ While(e, b) } 
+  | FOR LPAREN d=separated_list(COMMA, vdecl) SEMI  SEMI  RPAREN b=block  { loc $startpos $endpos @@ For(d, None, None, b) } 
+  | FOR LPAREN d=separated_list(COMMA, vdecl) SEMI  SEMI s=stmt RPAREN b=block { loc $startpos $endpos @@ For(d, None, Some s, b) } 
+  | FOR LPAREN d=separated_list(COMMA, vdecl) SEMI e=exp SEMI  RPAREN b=block { loc $startpos $endpos @@ For(d, Some e, None, b) } 
+  | FOR LPAREN d=separated_list(COMMA, vdecl) SEMI e=exp SEMI s=stmt RPAREN b=block { loc $startpos $endpos @@ For(d, Some e, Some s, b) } 
 
 block:
   | LBRACE stmts=list(stmt) RBRACE { stmts }
