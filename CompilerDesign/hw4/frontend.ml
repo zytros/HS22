@@ -303,9 +303,68 @@ let oat_alloc_array (t:Ast.ty) (size:Ll.operand) : Ll.ty * operand * stream =
      (CArr) and the (NewArr) expressions
 
 *)
+(*A = Arith, c = Comparison*)
+let compBopC = function
+  | Eq -> Ll.Eq
+  | Neq -> Ll.Ne
+  | Lt -> Ll.Slt
+  | Lte -> Ll.Sle
+  | Gt -> Ll.Sgt
+  | Gte -> Ll.Sge
+  | _ -> failwith " is no comparison compBopC"
+
+let compBopA = function
+  | Mul -> Ll.Mul
+  | Add -> Ll.Add
+  | Sub -> Ll.Sub
+  | And -> Ll.And
+  | Or -> Ll.Or
+  | IAnd -> Ll.And
+  | IOr -> Ll.Or
+  | Shl -> Ll.Shl
+  | Shr -> Ll.Lshr
+  | Sar -> Ll.Ashr
+  | _ -> failwith "is no arithmetic operator compBopA"
+
+
+let isArith = function
+  | Mul | Add | Sub | And | Or | IAnd | IOr | Shl | Shr | Sar -> true
+  | Eq | Lt | Lte | Gt | Gte -> false
+  | _ -> failwith "not Ast type isArith"
+
+let id x = x
+
+let createArray c ety atomty elems uid =
+  let elIndexes = List.combine elems (List.init (List.length elems) id) in
+  let getElemPList = List.map (fun _ -> gensym "gep") elIndexes in
+  let getElemPStream = List.map (fun (e, i) -> I(List.nth getElemPList i, Gep(Ptr atomty, Id uid, [Const 0L; Const 1L; Const (Int64.of_int i)]))) elIndexes in
+  let outStream = List.map (fun (e, i) -> I(gensym "store", Store(ety, e, Id (List.nth getElemPList i)))) elIndexes in
+  let len_ind = gensym "len_ind" in
+  [I(uid, Alloca(atomty))] >@
+  [I(len_ind, Gep(Ptr atomty, Id uid, [Const 0L; Const 0L]))] >@
+  [I(gensym "store", Store(I64, Const (Int64.of_int (List.length elems)), Id len_ind))] >@
+  List.rev getElemPStream >@
+  List.rev outStream
 
 let rec cmp_exp (c:Ctxt.t) (exp:Ast.exp node) : Ll.ty * Ll.operand * stream =
-  failwith "cmp_exp unimplemented"
+  begin match exp.elt with
+  | CNull a -> (cmp_ty (TRef a), Null, [])
+  | CBool a -> (cmp_ty TBool, Const (if a then 1L else 0L), [])
+  | CInt a -> (cmp_ty TInt, Const a, [])
+  | CStr str -> 
+    let aType = Array (1+String.length str, I8) in
+    (Ptr I8, Id (gensym "str_ptr"), [G((gensym "raw_string"), (aType, GString str))] >@
+    [G((gensym "string"), (Ptr I8, GBitcast(Ptr aType, GGid (gensym "raw_string"), (Ptr I8))))] >@
+    [I ((gensym "str_ptr"), Load (Ptr (Ptr I8), Gid (gensym "string")))]   
+    )
+  | CArr (t, e) -> failwith "not implemented yet"
+  | NewArr (t,size) -> failwith "not implemented yet"
+  | Index (array, ind) ->failwith "not implemented yet"
+  | Id id ->failwith "not implemented yet"
+  | Call _ -> failwith "not implemented yet"
+  | Bop _ -> failwith "not implemented yet"
+  | Uop _ -> failwith "not implemented yet"
+end
 
 (* Compile a statement in context c with return typ rt. Return a new context, 
    possibly extended with new local bindings, and the instruction stream
@@ -365,8 +424,25 @@ let cmp_function_ctxt (c:Ctxt.t) (p:Ast.prog) : Ctxt.t =
    Only a small subset of OAT expressions can be used as global initializers
    in well-formed programs. (The constructors starting with C). 
 *)
+
+
 let cmp_global_ctxt (c:Ctxt.t) (p:Ast.prog) : Ctxt.t =
-  failwith "cmp_global_ctxt unimplemented"
+  let compGlobalType e = 
+    begin match e with
+    | CNull a -> TRef (a)
+    | CBool a -> TBool
+    | CInt a -> TInt
+    | CStr a -> TRef (RString)
+    | CArr (ty, ns) -> TRef (RArray ty)
+    | _ -> failwith "excpected global type"
+  end in
+
+  List.fold_left (fun c -> function
+    | Ast.Gvdecl { elt={name; init}} -> 
+        let o = compGlobalType init.elt in
+        Ctxt.add c name (Ptr (cmp_ty o), Gid name)
+    | _ -> c)
+    c p
 
 (* Compile a function declaration in global context c. Return the LLVMlite cfg
    and a list of global declarations containing the string literals appearing
