@@ -3,8 +3,8 @@
 
 type token = 
   | WHILE
-  | VERTBR
-  | VERT
+  | VERTBARI
+  | VERTBAR
   | VAR
   | TVOID
   | TSTRING
@@ -26,6 +26,8 @@ type token =
   | LTEQ
   | LT
   | LPAREN
+  | LOGANDI
+  | LOGAND
   | LBRACKET
   | LBRACE
   | INT of (int64)
@@ -46,8 +48,6 @@ type token =
   | COMMA
   | BANGEQ
   | BANG
-  | AMPBR
-  | AMP
 
 (* This exception is raised by the monolithic API functions. *)
 

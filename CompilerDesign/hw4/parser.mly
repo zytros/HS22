@@ -38,14 +38,12 @@ let loc (startpos:Lexing.position) (endpos:Lexing.position) (elt:'a) : 'a node =
 %token BANG     /* ! */
 %token GLOBAL   /* global */
 
-%token TBOOL
+%token TBOOL 
 %token FOR
 %token NEW
 
-%token TRUE   // true
-%token FALSE  // false
-%token VERT   // |
-%token AMP    // &
+%token VERTBAR   // |
+%token LOGAND    // &
 %token BANGEQ // !=
 %token LT     // <
 %token GT     // >
@@ -54,24 +52,26 @@ let loc (startpos:Lexing.position) (endpos:Lexing.position) (elt:'a) : 'a node =
 %token LTLT   // <<
 %token GTGT   // >>
 %token GTGTGT // >>>
-%token AMPBR  // [&]
-%token VERTBR // [|]
+%token LOGANDI  // [&]
+%token VERTBARI // [|]
+%token TRUE   // true
+%token FALSE  // false
 
-%left VERT
-%left AMP
-%left VERTBR
-%left AMPBR
+%left VERTBARI
+%left LOGANDI
+%left VERTBAR
+%left LOGAND
 %left EQEQ BANGEQ
 %left LT LTEQ GT GTEQ
 %left LTLT GTGT GTGTGT
-
 %left PLUS DASH
 %left STAR
 
-%nonassoc BANG
+// Why is this here?
+/*%nonassoc BANG
 %nonassoc TILDE
 %nonassoc LBRACKET
-%nonassoc LPAREN
+%nonassoc LPAREN*/
 
 /* ---------------------------------------------------------------------- */
 
@@ -123,11 +123,10 @@ ty:
   | TRUE  { true }
   | FALSE { false }
 
-%inline bop:
+%inline bop: // fix precedence (BIG AAAAAAAAHHHH)
+  | STAR    {Mul}
   | PLUS   { Add }
   | DASH   { Sub }
-  | STAR   { Mul }
-  | EQEQ   { Eq }
   | LTLT    { Shl }
   | GTGT    { Shr }
   | GTGTGT  { Sar }
@@ -135,11 +134,12 @@ ty:
   | LTEQ    { Lte }
   | GT      { Gt }
   | GTEQ    { Gte }
+  | EQEQ   { Eq }
   | BANGEQ  { Neq }
-  | AMP     { And }
-  | VERT    { Or }
-  | AMPBR   { IAnd }
-  | VERTBR  { IOr }
+  | LOGAND     { And }
+  | VERTBAR    { Or }
+  | LOGANDI   { IAnd }
+  | VERTBARI  { IOr }
 
 %inline uop:
   | DASH  { Neg }
@@ -149,29 +149,31 @@ ty:
 gexp:
   | t=rtyp NULL  { loc $startpos $endpos @@ CNull t }
   | i=INT      { loc $startpos $endpos @@ CInt i }
+  | b=cbool     { loc $startpos $endpos @@ CBool b }
   | s=STRING    { loc $startpos $endpos @@ CStr s }
-  | b=cbool     { loc $startpos $endpos @@ CBool b}
   | NEW t=ty LBRACKET RBRACKET LBRACE xs=separated_list(COMMA, exp) RBRACE { loc $startpos $endpos @@ CArr (t, xs)}
 
 lhs:  
   | id=IDENT            { loc $startpos $endpos @@ Id id }
-  | e=exp LBRACKET i=exp RBRACKET
+  | e=expauxaux LBRACKET i=exp RBRACKET
                         { loc $startpos $endpos @@ Index (e, i) }
 
 exp:
-  | e1=exp b=bop e2=exp  { loc $startpos $endpos @@ Bop (b,e1,e2) }
+  | e1=exp op=bop e2=exp  { loc $startpos $endpos @@ Bop (op, e1, e2) }
   | e=expaux { e }
-
 expaux:
   | u=uop e=expaux  { loc $startpos $endpos @@ Uop (u, e)}
   | e=expauxaux { e }
-
 expauxaux:
-  | e=expauxaux LBRACKET n=exp RBRACKET { loc $startpos $endpos @@ Index (e, n) }
-  | e=expauxaux LPAREN xs=separated_list(COMMA, exp) RPAREN { loc $startpos $endpos @@ Call (e,xs)}
+  | e=expauxaux LBRACKET n=exp RBRACKET 
+                        { loc $startpos $endpos @@ Index (e, n) }
+  | e=expauxaux LPAREN xs=separated_list(COMMA, exp) RPAREN 
+                        { loc $startpos $endpos @@ Call (e,xs)}
   | i=INT               { loc $startpos $endpos @@ CInt i }
-  | t=rtyp NULL           { loc $startpos $endpos @@ CNull t }
+  | t=rtyp NULL         { loc $startpos $endpos @@ CNull t }
   | id=IDENT            { loc $startpos $endpos @@ Id id }
+  | b=cbool             { loc $startpos $endpos @@ CBool b }
+  | s=STRING            { loc $startpos $endpos @@ CStr s }
   | NEW t=ty LBRACKET RBRACKET LBRACE xs=separated_list(COMMA, exp) RBRACE  { loc $startpos $endpos @@ CArr (t,xs) }
   | NEW t=ty LBRACKET e=exp RBRACKET  {
     if t=TInt || t=TBool then
@@ -189,8 +191,8 @@ vdecl:
 stmt: 
   | d=vdecl SEMI        { loc $startpos $endpos @@ Decl(d) }
   | p=lhs EQ e=exp SEMI { loc $startpos $endpos @@ Assn(p,e) }
-  | e=exp LPAREN es=separated_list(COMMA, exp) RPAREN SEMI
-                        { loc $startpos $endpos @@ SCall (e, es) }
+  | e=expauxaux LPAREN xs=separated_list(COMMA, exp) RPAREN SEMI
+                        { loc $startpos $endpos @@ SCall (e, xs) }
   | ifs=if_stmt         { ifs }
   | RETURN SEMI         { loc $startpos $endpos @@ Ret(None) }
   | RETURN e=exp SEMI   { loc $startpos $endpos @@ Ret(Some e) }
