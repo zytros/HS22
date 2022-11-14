@@ -443,6 +443,7 @@ let cmp_global_ctxt (c:Ctxt.t) (p:Ast.prog) : Ctxt.t =
         Ctxt.add c name (Ptr (cmp_ty o), Gid name)
     | _ -> c)
     c p
+    
 
 (* Compile a function declaration in global context c. Return the LLVMlite cfg
    and a list of global declarations containing the string literals appearing
