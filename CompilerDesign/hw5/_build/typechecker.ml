@@ -445,6 +445,11 @@ let rec check_dups fs =
   | [] -> false
   | h :: t -> (List.exists (fun x -> x.fieldName = h.fieldName) t) || check_dups t
 
+let rec check_id_dups fs =
+  match fs with
+  | [] -> false
+  | h :: t -> (List.exists (fun x -> x = h) t) || check_id_dups t
+
 let typecheck_tdecl (tc : Tctxt.t) id fs  (l : 'a Ast.node) : unit =
   if check_dups fs
   then type_error l ("Repeated fields in " ^ id) 
@@ -457,8 +462,19 @@ let typecheck_tdecl (tc : Tctxt.t) id fs  (l : 'a Ast.node) : unit =
     - typechecks the body of the function (passing in the expected return type
     - checks that the function actually returns
 *)
-let typecheck_fdecl (tc : Tctxt.t) (f : Ast.fdecl) (l : 'a Ast.node) : unit =
-  failwith "todo: typecheck_fdecl"
+let rec typecheck_block_forceret (tc : Tctxt.t) (rty : Ast.ret_ty) (block : Ast.block) (returns : bool) : unit =
+  let r = checkBlock tc rty block in
+  if r == returns
+    then ()
+    else type_error (List.hd @@ List.rev block) ("Final statement does not have return behavior " ^ (if returns then "true" else "false")) 
+
+let typecheck_fdecl (tc : Tctxt.t) ({frtyp=rty; fname=fname; args=args; body=body} : Ast.fdecl) (l : 'a Ast.node) : unit =
+  let arg_ids = List.map snd args in
+  let has_any_dups = check_id_dups arg_ids in
+  let args2 = List.map (fun (x,y) -> (y,x)) args in
+  if has_any_dups
+    then type_error l "function arguments have duplicates"
+    else typecheck_block_forceret {structs=tc.structs; locals=args2; globals=tc.globals} rty body true
 
 (* creating the typchecking context ----------------------------------------- *)
 
@@ -488,13 +504,56 @@ let typecheck_fdecl (tc : Tctxt.t) (f : Ast.fdecl) (l : 'a Ast.node) : unit =
    constants, but can't mention other global values *)
 
    let create_struct_ctxt (p:Ast.prog) : Tctxt.t =
-    failwith "todo: create_struct_ctxt"
+    let struct_decls = List.filter (
+      fun x -> match x with
+      | Gtdecl _ -> true
+      | _ -> false
+    ) p in
+    let structs : Tctxt.struct_ctxt = List.map (
+      fun x -> match x with
+      | Gtdecl {elt=(id, fields)} -> (id, fields)
+      | _ -> failwith "wtf: filter is bs"
+    ) struct_decls in
+    let struct_ids = List.map fst structs in
+    let has_any_dups = check_id_dups struct_ids in
+    if has_any_dups
+      then type_error (no_loc (Id "who cares")) "struct declarations have duplicates"
+      else {structs=structs; locals=[]; globals=[]}
   
   let create_function_ctxt (tc:Tctxt.t) (p:Ast.prog) : Tctxt.t =
-    failwith "todo: create_function_ctxt"
+    let fun_decls = List.filter (
+      fun x -> match x with
+      | Gfdecl _ -> true
+      | _ -> false
+    ) p in
+    let funs = builtins @ List.map (
+      fun x -> match x with
+      | Gfdecl {elt={frtyp=rty; fname=fname; args=args; body=body}} -> (fname, (List.map fst args, rty))
+      | _ -> failwith "wtf: filter is bs"
+    ) fun_decls in
+    let funs_ctxt = List.map (fun (id,(tys, rty)) -> (id, Ast.TRef (Ast.RFun (tys, rty)))) funs in
+    let fun_ids = List.map fst funs in
+    let has_any_dups = check_id_dups fun_ids in
+    if has_any_dups
+      then type_error (no_loc (Id "who cares")) "function declarations have duplicates"
+      else {structs=tc.structs; locals=[]; globals=funs_ctxt}
   
   let create_global_ctxt (tc:Tctxt.t) (p:Ast.prog) : Tctxt.t =
-    failwith "todo: create_function_ctxt"
+    let glbl_decls = List.filter (
+      fun x -> match x with
+      | Gvdecl _ -> true
+      | _ -> false
+    ) p in
+    let glbls : Tctxt.global_ctxt = List.map (
+      fun x -> match x with
+      | Gvdecl {elt={name=name; init=exp_node}} -> (name, typecheck_exp tc exp_node)
+      | _ -> failwith "wtf: filter is bs"
+    ) glbl_decls in
+    let glbl_ids = List.map fst glbls in
+    let has_any_dups = check_id_dups glbl_ids in
+    if has_any_dups
+      then type_error (no_loc (Id "who cares")) "global variable declarations have duplicates"
+      else {structs=tc.structs; locals=[]; globals=tc.globals @ glbls}
 
 
 (* This function implements the |- prog and the H ; G |- prog 
