@@ -1,0 +1,1 @@
+time[ms],#packets last interval,#packets overall,overall avrg. packetsize [byte],overall sum packetsize [byte],overall offer [Mb/s],offer last interval [Mb/s]

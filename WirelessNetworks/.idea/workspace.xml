@@ -7,7 +7,11 @@
     <list default="true" id="95e16e0c-9f30-48ce-8639-c88cd566f12a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/../CompilerDesign/hw1/main.native" beforeDir="false" afterPath="$PROJECT_DIR$/../CompilerDesign/hw1/main.native" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../CompilerDesign/hw2/main.native" beforeDir="false" afterPath="$PROJECT_DIR$/../CompilerDesign/hw2/main.native" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/results_MobComp_assignment01Luca.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../CompilerDesign/hw3/main.native" beforeDir="false" afterPath="$PROJECT_DIR$/../CompilerDesign/hw3/main.native" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../CompilerDesign/hw4/main.native" beforeDir="false" afterPath="$PROJECT_DIR$/../CompilerDesign/hw4/main.native" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../CompilerDesign/hw5/main.native" beforeDir="false" afterPath="$PROJECT_DIR$/../CompilerDesign/hw5/main.native" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,6 +22,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
   <component name="ProjectId" id="2GXicMpgv10NtyldxnIAt41zIGW" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -25,12 +30,18 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../HPC" />
+    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
   </component>
   <component name="RunManager">
     <configuration name="jaaaaaa" type="Application" factoryName="Application">
+      <option name="ALTERNATIVE_JRE_PATH" value="17" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="MAIN_CLASS_NAME" value="emulator.JE802Starter" />
       <module name="WirelessNetworks" />
-      <option name="PROGRAM_PARAMETERS" value="jemula802/scenarios/ETH_Course/MobComp_assignment03.xml" />
+      <option name="PROGRAM_PARAMETERS" value="jemula802/scenarios/ETH_Course/MobComp_assignment04.xml" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
