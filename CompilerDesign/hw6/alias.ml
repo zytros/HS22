@@ -34,7 +34,43 @@ type fact = SymPtr.t UidM.t
 
  *)
 let insn_flow ((u,i):uid * insn) (d:fact) : fact =
-  failwith "Alias.insn_flow unimplemented"
+  let ident = ref d in
+  
+  let dup uid ty =
+    begin match ty with
+    | Ptr _ -> ident := UidM.add uid SymPtr.MayAlias !ident
+    | _ -> ()
+  end in
+  let opDup op ty = 
+    begin match op with
+    | Null | Const _ | Gid _ -> ()
+    | Id uid -> 
+      begin match ty with
+      | Ptr _ -> ident := UidM.add uid SymPtr.MayAlias !ident
+      | _ -> ()
+    end
+  end
+  in
+  let undup uid ty =
+    begin match ty with
+    | Ptr _ -> ident := UidM.add uid SymPtr.Unique !ident
+    | _ -> ()
+  end in
+
+
+  begin match i with
+    | Store (ty, a, b) -> opDup a ty
+    | Load (ty, op) -> begin match ty with
+      | Ptr t -> dup u t
+      | _ -> failwith "error isns_flow Alloca"
+      end
+    | Call (retT, f, args) -> dup u retT; ignore (List.map (fun (x,y) -> opDup y x) args)
+    | Bitcast (t1, op, t2) -> dup u t2; opDup op t1
+    | Gep (ty, op, ops) -> dup u (Ptr Void); opDup op ty
+    | Alloca ty -> undup u (Ptr ty)
+    | _ -> ()
+  end;
+  !ident
 
 
 (* The flow function across terminators is trivial: they never change alias info *)
@@ -69,7 +105,22 @@ module Fact =
        join of two SymPtr.t facts.
     *)
     let combine (ds:fact list) : fact =
-      failwith "Alias.Fact.combine not implemented"
+      let join uid (a:SymPtr.t option) (b:SymPtr.t option) : SymPtr.t option = 
+        begin match a with 
+          | Some Unique -> begin match b with 
+            | Some MayAlias -> Some MayAlias
+            | Some Unique
+            | Some UndefAlias | None -> Some Unique
+          end
+          | Some MayAlias -> Some MayAlias
+          | Some UndefAlias | None -> begin match b with 
+            | Some Unique -> Some Unique
+            | Some MayAlias -> Some MayAlias
+            | Some UndefAlias | None -> Some UndefAlias
+          end
+        end
+      in
+      List.fold_right (UidM.merge join) ds UidM.empty
   end
 
 (* instantiate the general framework ---------------------------------------- *)
