@@ -1,108 +1,100 @@
 ### Starting build.
 # Target: main.ml.depends, tags: { extension:ml, file:main.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules main.ml > main.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules main.ml > main.ml.depends
 # Target: util/assert.mli.depends, tags: { extension:mli, file:util/assert.mli, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules util/assert.mli > util/assert.mli.depends # cached
-# Target: util/assert.cmi, tags: { byte, compile, extension:mli, file:util/assert.mli, interf, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I util -I x86 -I ll -o util/assert.cmi util/assert.mli # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules util/assert.mli > util/assert.mli.depends
 # Target: backend.ml.depends, tags: { extension:ml, file:backend.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules backend.ml > backend.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules backend.ml > backend.ml.depends
 # Target: datastructures.ml.depends, tags: { extension:ml, file:datastructures.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules datastructures.ml > datastructures.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules datastructures.ml > datastructures.ml.depends
 # Target: ll/ll.ml.depends, tags: { extension:ml, file:ll/ll.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules ll/ll.ml > ll/ll.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules ll/ll.ml > ll/ll.ml.depends
 # Target: ll/ll.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:ll/ll.cmo, file:ll/ll.ml, implem, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I ll -I x86 -I util -o ll/ll.cmo ll/ll.ml # cached
-# Target: datastructures.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:datastructures.cmo, file:datastructures.ml, implem, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o datastructures.cmo datastructures.ml # cached
+/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I ll -I x86 -I util -o ll/ll.cmo ll/ll.ml
 # Target: liveness.ml.depends, tags: { extension:ml, file:liveness.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules liveness.ml > liveness.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules liveness.ml > liveness.ml.depends
 # Target: cfg.ml.depends, tags: { extension:ml, file:cfg.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules cfg.ml > cfg.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules cfg.ml > cfg.ml.depends
+# Target: datastructures.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:datastructures.cmo, file:datastructures.ml, implem, ocaml, quiet }
+/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o datastructures.cmo datastructures.ml
 # Target: ll/llutil.ml.depends, tags: { extension:ml, file:ll/llutil.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules ll/llutil.ml > ll/llutil.ml.depends # cached
-# Target: ll/llutil.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:ll/llutil.cmo, file:ll/llutil.ml, implem, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I ll -I x86 -I util -o ll/llutil.cmo ll/llutil.ml # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules ll/llutil.ml > ll/llutil.ml.depends
 # Target: solver.ml.depends, tags: { extension:ml, file:solver.ml, ocaml, ocamldep, quiet }
 /home/user/.opam/4.06.0/bin/ocamldep.opt -modules solver.ml > solver.ml.depends
+# Target: ll/llutil.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:ll/llutil.cmo, file:ll/llutil.ml, implem, ocaml, quiet }
+/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I ll -I x86 -I util -o ll/llutil.cmo ll/llutil.ml
 # Target: solver.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:solver.cmo, file:solver.ml, implem, ocaml, quiet }
 /home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o solver.cmo solver.ml
 # Target: cfg.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:cfg.cmo, file:cfg.ml, implem, ocaml, quiet }
 /home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o cfg.cmo cfg.ml
 # Target: util/platform.ml.depends, tags: { extension:ml, file:util/platform.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules util/platform.ml > util/platform.ml.depends # cached
-# Target: util/platform.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:util/platform.cmo, file:util/platform.ml, implem, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I util -I x86 -I ll -o util/platform.cmo util/platform.ml # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules util/platform.ml > util/platform.ml.depends
 # Target: x86/x86.ml.depends, tags: { extension:ml, file:x86/x86.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules x86/x86.ml > x86/x86.ml.depends # cached
-# Target: x86/x86.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:x86/x86.cmo, file:x86/x86.ml, implem, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o x86/x86.cmo x86/x86.ml # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules x86/x86.ml > x86/x86.ml.depends
 # Target: liveness.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:liveness.cmo, file:liveness.ml, implem, ocaml, quiet }
 /home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o liveness.cmo liveness.ml
+# Target: util/platform.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:util/platform.cmo, file:util/platform.ml, implem, ocaml, quiet }
+/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I util -I x86 -I ll -o util/platform.cmo util/platform.ml
+# Target: x86/x86.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:x86/x86.cmo, file:x86/x86.ml, implem, ocaml, quiet }
+/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o x86/x86.cmo x86/x86.ml
 # Target: driver.ml.depends, tags: { extension:ml, file:driver.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules driver.ml > driver.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules driver.ml > driver.ml.depends
 # Target: astlib.ml.depends, tags: { extension:ml, file:astlib.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules astlib.ml > astlib.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules astlib.ml > astlib.ml.depends
 # Target: ast.ml.depends, tags: { extension:ml, file:ast.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules ast.ml > ast.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules ast.ml > ast.ml.depends
 # Target: util/range.mli.depends, tags: { extension:mli, file:util/range.mli, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules util/range.mli > util/range.mli.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules util/range.mli > util/range.mli.depends
 # Target: util/range.cmi, tags: { byte, compile, extension:mli, file:util/range.mli, interf, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I util -I x86 -I ll -o util/range.cmi util/range.mli # cached
+/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I util -I x86 -I ll -o util/range.cmi util/range.mli
 # Target: ast.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:ast.cmo, file:ast.ml, implem, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o ast.cmo ast.ml # cached
-# Target: astlib.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:astlib.cmo, file:astlib.ml, implem, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o astlib.cmo astlib.ml # cached
+/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o ast.cmo ast.ml
 # Target: backend.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:backend.cmo, file:backend.ml, implem, ocaml, quiet }
 /home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o backend.cmo backend.ml
 # Target: frontend.ml.depends, tags: { extension:ml, file:frontend.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules frontend.ml > frontend.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules frontend.ml > frontend.ml.depends
+# Target: astlib.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:astlib.cmo, file:astlib.ml, implem, ocaml, quiet }
+/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o astlib.cmo astlib.ml
 # Target: typechecker.ml.depends, tags: { extension:ml, file:typechecker.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules typechecker.ml > typechecker.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules typechecker.ml > typechecker.ml.depends
 # Target: tctxt.ml.depends, tags: { extension:ml, file:tctxt.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules tctxt.ml > tctxt.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules tctxt.ml > tctxt.ml.depends
 # Target: tctxt.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:tctxt.cmo, file:tctxt.ml, implem, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o tctxt.cmo tctxt.ml # cached
+/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o tctxt.cmo tctxt.ml
 # Target: typechecker.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:typechecker.cmo, file:typechecker.ml, implem, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o typechecker.cmo typechecker.ml # cached
-# Target: frontend.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:frontend.cmo, file:frontend.ml, implem, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o frontend.cmo frontend.ml # cached
+/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o typechecker.cmo typechecker.ml
 # Target: lexer.mll, tags: { extension:mll, file:lexer.mll, lexer, ocaml, ocamllex, quiet }
-/home/user/.opam/4.06.0/bin/ocamllex.opt -q lexer.mll # cached
+/home/user/.opam/4.06.0/bin/ocamllex.opt -q lexer.mll
 # Target: lexer.ml.depends, tags: { extension:ml, file:lexer.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules lexer.ml > lexer.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules lexer.ml > lexer.ml.depends
 # Target: parser.mly.depends, tags: { extension:mly, file:parser.mly, infer, menhir_ocamldep, ocaml, ocamldep, quiet }
-menhir --raw-depend --ocamldep '/home/user/.opam/4.06.0/bin/ocamldep.opt -modules' parser.mly > parser.mly.depends # cached
+menhir --raw-depend --ocamldep '/home/user/.opam/4.06.0/bin/ocamldep.opt -modules' parser.mly > parser.mly.depends
 # Target: parser.mly, tags: { byte, compile, extension:ml, extension:mly, file:parser.ml, file:parser.mly, infer, menhir, ocaml, parser, quiet }
-menhir --ocamlc '/home/user/.opam/4.06.0/bin/ocamlc.opt -I x86 -I util -I ll' --explain --infer parser.mly # cached
+menhir --ocamlc '/home/user/.opam/4.06.0/bin/ocamlc.opt -I x86 -I util -I ll' --explain --infer parser.mly
 # Target: parser.mli.depends, tags: { extension:mli, file:parser.mli, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules parser.mli > parser.mli.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules parser.mli > parser.mli.depends
 # Target: parser.cmi, tags: { byte, compile, extension:mli, file:parser.mli, interf, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o parser.cmi parser.mli # cached
-# Target: lexer.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:lexer.cmo, file:lexer.ml, implem, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o lexer.cmo lexer.ml # cached
+/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o parser.cmi parser.mli
 # Target: ll/lllexer.mll, tags: { extension:mll, file:ll/lllexer.mll, lexer, ocaml, ocamllex, quiet }
-/home/user/.opam/4.06.0/bin/ocamllex.opt -q ll/lllexer.mll # cached
+/home/user/.opam/4.06.0/bin/ocamllex.opt -q ll/lllexer.mll
 # Target: ll/lllexer.ml.depends, tags: { extension:ml, file:ll/lllexer.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules ll/lllexer.ml > ll/lllexer.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules ll/lllexer.ml > ll/lllexer.ml.depends
 # Target: ll/llparser.mly.depends, tags: { extension:mly, file:ll/llparser.mly, infer, menhir_ocamldep, ocaml, ocamldep, quiet }
-menhir --raw-depend --ocamldep '/home/user/.opam/4.06.0/bin/ocamldep.opt -modules' ll/llparser.mly > ll/llparser.mly.depends # cached
+menhir --raw-depend --ocamldep '/home/user/.opam/4.06.0/bin/ocamldep.opt -modules' ll/llparser.mly > ll/llparser.mly.depends
 # Target: ll/llparser.mly, tags: { byte, compile, extension:ml, extension:mly, file:ll/llparser.ml, file:ll/llparser.mly, infer, menhir, ocaml, parser, quiet }
-menhir --ocamlc '/home/user/.opam/4.06.0/bin/ocamlc.opt -I ll -I x86 -I util' --explain --infer ll/llparser.mly # cached
+menhir --ocamlc '/home/user/.opam/4.06.0/bin/ocamlc.opt -I ll -I x86 -I util' --explain --infer ll/llparser.mly
 # Target: ll/llparser.mli.depends, tags: { extension:mli, file:ll/llparser.mli, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules ll/llparser.mli > ll/llparser.mli.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules ll/llparser.mli > ll/llparser.mli.depends
 # Target: ll/llparser.cmi, tags: { byte, compile, extension:mli, file:ll/llparser.mli, interf, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I ll -I x86 -I util -o ll/llparser.cmi ll/llparser.mli # cached
-# Target: ll/lllexer.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:ll/lllexer.cmo, file:ll/lllexer.ml, implem, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I ll -I x86 -I util -o ll/lllexer.cmo ll/lllexer.ml # cached
+/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I ll -I x86 -I util -o ll/llparser.cmi ll/llparser.mli
 # Target: opt.ml.depends, tags: { extension:ml, file:opt.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules opt.ml > opt.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules opt.ml > opt.ml.depends
 # Target: alias.ml.depends, tags: { extension:ml, file:alias.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules alias.ml > alias.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules alias.ml > alias.ml.depends
 # Target: constprop.ml.depends, tags: { extension:ml, file:constprop.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules constprop.ml > constprop.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules constprop.ml > constprop.ml.depends
 # Target: dce.ml.depends, tags: { extension:ml, file:dce.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules dce.ml > dce.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules dce.ml > dce.ml.depends
 # Target: alias.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:alias.cmo, file:alias.ml, implem, ocaml, quiet }
 /home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o alias.cmo alias.ml
 # Target: constprop.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:constprop.cmo, file:constprop.ml, implem, ocaml, quiet }
@@ -115,15 +107,23 @@ Warning 26: unused variable cb.
 # Target: dce.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:dce.cmo, file:dce.ml, implem, ocaml, quiet }
 /home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o dce.cmo dce.ml
 # Target: registers.ml.depends, tags: { extension:ml, file:registers.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules registers.ml > registers.ml.depends # cached
-# Target: registers.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:registers.cmo, file:registers.ml, implem, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o registers.cmo registers.ml # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules registers.ml > registers.ml.depends
+# Target: frontend.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:frontend.cmo, file:frontend.ml, implem, ocaml, quiet }
+/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o frontend.cmo frontend.ml
+# Target: lexer.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:lexer.cmo, file:lexer.ml, implem, ocaml, quiet }
+/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o lexer.cmo lexer.ml
+# Target: ll/lllexer.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:ll/lllexer.cmo, file:ll/lllexer.ml, implem, ocaml, quiet }
+/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I ll -I x86 -I util -o ll/lllexer.cmo ll/lllexer.ml
 # Target: opt.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:opt.cmo, file:opt.ml, implem, ocaml, quiet }
 /home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o opt.cmo opt.ml
+# Target: registers.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:registers.cmo, file:registers.ml, implem, ocaml, quiet }
+/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o registers.cmo registers.ml
 # Target: gradedtests.ml.depends, tags: { extension:ml, file:gradedtests.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules gradedtests.ml > gradedtests.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules gradedtests.ml > gradedtests.ml.depends
 # Target: analysistests.ml.depends, tags: { extension:ml, file:analysistests.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules analysistests.ml > analysistests.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules analysistests.ml > analysistests.ml.depends
+# Target: util/assert.cmi, tags: { byte, compile, extension:mli, file:util/assert.mli, interf, ocaml, quiet }
+/home/user/.opam/4.06.0/bin/ocamlc.opt -c -I util -I x86 -I ll -o util/assert.cmi util/assert.mli
 # Target: driver.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:driver.cmo, file:driver.ml, implem, ocaml, quiet }
 /home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o driver.cmo driver.ml
 # Target: analysistests.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:analysistests.cmo, file:analysistests.ml, implem, ocaml, quiet }
@@ -133,53 +133,45 @@ Warning 26: unused variable cb.
 # Target: main.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:main.cmo, file:main.ml, implem, ocaml, quiet }
 /home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o main.cmo main.ml
 # Target: util/assert.ml.depends, tags: { extension:ml, file:util/assert.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules util/assert.ml > util/assert.ml.depends # cached
-# Target: util/assert.cmx, tags: { compile, extension:cmx, extension:ml, file:util/assert.cmx, file:util/assert.ml, implem, native, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I util -I x86 -I ll -o util/assert.cmx util/assert.ml # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules util/assert.ml > util/assert.ml.depends
 # Target: ll/ll.cmx, tags: { compile, extension:cmx, extension:ml, file:ll/ll.cmx, file:ll/ll.ml, implem, native, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I ll -I x86 -I util -o ll/ll.cmx ll/ll.ml # cached
+/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I ll -I x86 -I util -o ll/ll.cmx ll/ll.ml
 # Target: datastructures.cmx, tags: { compile, extension:cmx, extension:ml, file:datastructures.cmx, file:datastructures.ml, implem, native, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o datastructures.cmx datastructures.ml # cached
+/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o datastructures.cmx datastructures.ml
 # Target: ll/llutil.cmx, tags: { compile, extension:cmx, extension:ml, file:ll/llutil.cmx, file:ll/llutil.ml, implem, native, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I ll -I x86 -I util -o ll/llutil.cmx ll/llutil.ml # cached
+/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I ll -I x86 -I util -o ll/llutil.cmx ll/llutil.ml
 # Target: solver.cmx, tags: { compile, extension:cmx, extension:ml, file:solver.cmx, file:solver.ml, implem, native, ocaml, quiet }
 /home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o solver.cmx solver.ml
 # Target: cfg.cmx, tags: { compile, extension:cmx, extension:ml, file:cfg.cmx, file:cfg.ml, implem, native, ocaml, quiet }
 /home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o cfg.cmx cfg.ml
-# Target: util/platform.cmx, tags: { compile, extension:cmx, extension:ml, file:util/platform.cmx, file:util/platform.ml, implem, native, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I util -I x86 -I ll -o util/platform.cmx util/platform.ml # cached
-# Target: x86/x86.cmx, tags: { compile, extension:cmx, extension:ml, file:x86/x86.cmx, file:x86/x86.ml, implem, native, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o x86/x86.cmx x86/x86.ml # cached
 # Target: liveness.cmx, tags: { compile, extension:cmx, extension:ml, file:liveness.cmx, file:liveness.ml, implem, native, ocaml, quiet }
 /home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o liveness.cmx liveness.ml
+# Target: util/platform.cmx, tags: { compile, extension:cmx, extension:ml, file:util/platform.cmx, file:util/platform.ml, implem, native, ocaml, quiet }
+/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I util -I x86 -I ll -o util/platform.cmx util/platform.ml
+# Target: x86/x86.cmx, tags: { compile, extension:cmx, extension:ml, file:x86/x86.cmx, file:x86/x86.ml, implem, native, ocaml, quiet }
+/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o x86/x86.cmx x86/x86.ml
 # Target: util/range.ml.depends, tags: { extension:ml, file:util/range.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules util/range.ml > util/range.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules util/range.ml > util/range.ml.depends
 # Target: util/range.cmx, tags: { compile, extension:cmx, extension:ml, file:util/range.cmx, file:util/range.ml, implem, native, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I util -I x86 -I ll -o util/range.cmx util/range.ml # cached
+/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I util -I x86 -I ll -o util/range.cmx util/range.ml
 # Target: ast.cmx, tags: { compile, extension:cmx, extension:ml, file:ast.cmx, file:ast.ml, implem, native, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o ast.cmx ast.ml # cached
-# Target: astlib.cmx, tags: { compile, extension:cmx, extension:ml, file:astlib.cmx, file:astlib.ml, implem, native, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o astlib.cmx astlib.ml # cached
+/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o ast.cmx ast.ml
 # Target: backend.cmx, tags: { compile, extension:cmx, extension:ml, file:backend.cmx, file:backend.ml, implem, native, ocaml, quiet }
 /home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o backend.cmx backend.ml
+# Target: astlib.cmx, tags: { compile, extension:cmx, extension:ml, file:astlib.cmx, file:astlib.ml, implem, native, ocaml, quiet }
+/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o astlib.cmx astlib.ml
 # Target: tctxt.cmx, tags: { compile, extension:cmx, extension:ml, file:tctxt.cmx, file:tctxt.ml, implem, native, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o tctxt.cmx tctxt.ml # cached
+/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o tctxt.cmx tctxt.ml
 # Target: typechecker.cmx, tags: { compile, extension:cmx, extension:ml, file:typechecker.cmx, file:typechecker.ml, implem, native, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o typechecker.cmx typechecker.ml # cached
-# Target: frontend.cmx, tags: { compile, extension:cmx, extension:ml, file:frontend.cmx, file:frontend.ml, implem, native, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o frontend.cmx frontend.ml # cached
+/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o typechecker.cmx typechecker.ml
 # Target: parser.ml.depends, tags: { extension:ml, file:parser.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules parser.ml > parser.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules parser.ml > parser.ml.depends
 # Target: parser.cmx, tags: { compile, extension:cmx, extension:ml, file:parser.cmx, file:parser.ml, implem, native, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o parser.cmx parser.ml # cached
-# Target: lexer.cmx, tags: { compile, extension:cmx, extension:ml, file:lexer.cmx, file:lexer.ml, implem, native, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o lexer.cmx lexer.ml # cached
+/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o parser.cmx parser.ml
 # Target: ll/llparser.ml.depends, tags: { extension:ml, file:ll/llparser.ml, ocaml, ocamldep, quiet }
-/home/user/.opam/4.06.0/bin/ocamldep.opt -modules ll/llparser.ml > ll/llparser.ml.depends # cached
+/home/user/.opam/4.06.0/bin/ocamldep.opt -modules ll/llparser.ml > ll/llparser.ml.depends
 # Target: ll/llparser.cmx, tags: { compile, extension:cmx, extension:ml, file:ll/llparser.cmx, file:ll/llparser.ml, implem, native, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I ll -I x86 -I util -o ll/llparser.cmx ll/llparser.ml # cached
-# Target: ll/lllexer.cmx, tags: { compile, extension:cmx, extension:ml, file:ll/lllexer.cmx, file:ll/lllexer.ml, implem, native, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I ll -I x86 -I util -o ll/lllexer.cmx ll/lllexer.ml # cached
+/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I ll -I x86 -I util -o ll/llparser.cmx ll/llparser.ml
 # Target: alias.cmx, tags: { compile, extension:cmx, extension:ml, file:alias.cmx, file:alias.ml, implem, native, ocaml, quiet }
 /home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o alias.cmx alias.ml
 # Target: constprop.cmx, tags: { compile, extension:cmx, extension:ml, file:constprop.cmx, file:constprop.ml, implem, native, ocaml, quiet }
@@ -191,10 +183,18 @@ File "constprop.ml", line 98, characters 8-10:
 Warning 26: unused variable cb.
 # Target: dce.cmx, tags: { compile, extension:cmx, extension:ml, file:dce.cmx, file:dce.ml, implem, native, ocaml, quiet }
 /home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o dce.cmx dce.ml
-# Target: registers.cmx, tags: { compile, extension:cmx, extension:ml, file:registers.cmx, file:registers.ml, implem, native, ocaml, quiet }
-/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o registers.cmx registers.ml # cached
+# Target: frontend.cmx, tags: { compile, extension:cmx, extension:ml, file:frontend.cmx, file:frontend.ml, implem, native, ocaml, quiet }
+/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o frontend.cmx frontend.ml
+# Target: lexer.cmx, tags: { compile, extension:cmx, extension:ml, file:lexer.cmx, file:lexer.ml, implem, native, ocaml, quiet }
+/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o lexer.cmx lexer.ml
+# Target: ll/lllexer.cmx, tags: { compile, extension:cmx, extension:ml, file:ll/lllexer.cmx, file:ll/lllexer.ml, implem, native, ocaml, quiet }
+/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I ll -I x86 -I util -o ll/lllexer.cmx ll/lllexer.ml
 # Target: opt.cmx, tags: { compile, extension:cmx, extension:ml, file:opt.cmx, file:opt.ml, implem, native, ocaml, quiet }
 /home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o opt.cmx opt.ml
+# Target: registers.cmx, tags: { compile, extension:cmx, extension:ml, file:registers.cmx, file:registers.ml, implem, native, ocaml, quiet }
+/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o registers.cmx registers.ml
+# Target: util/assert.cmx, tags: { compile, extension:cmx, extension:ml, file:util/assert.cmx, file:util/assert.ml, implem, native, ocaml, quiet }
+/home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I util -I x86 -I ll -o util/assert.cmx util/assert.ml
 # Target: driver.cmx, tags: { compile, extension:cmx, extension:ml, file:driver.cmx, file:driver.ml, implem, native, ocaml, quiet }
 /home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o driver.cmx driver.ml
 # Target: analysistests.cmx, tags: { compile, extension:cmx, extension:ml, file:analysistests.cmx, file:analysistests.ml, implem, native, ocaml, quiet }

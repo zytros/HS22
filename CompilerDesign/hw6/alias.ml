@@ -49,14 +49,12 @@ let insn_flow ((u,i):uid * insn) (d:fact) : fact =
       | Ptr _ -> ident := UidM.add uid SymPtr.MayAlias !ident
       | _ -> ()
     end
-  end
-  in
+  end in
   let undup uid ty =
     begin match ty with
     | Ptr _ -> ident := UidM.add uid SymPtr.Unique !ident
     | _ -> ()
   end in
-
 
   begin match i with
     | Store (ty, a, b) -> opDup a ty
@@ -64,7 +62,7 @@ let insn_flow ((u,i):uid * insn) (d:fact) : fact =
       | Ptr t -> dup u t
       | _ -> failwith "error isns_flow Alloca"
       end
-    | Call (retT, f, args) -> dup u retT; ignore (List.map (fun (x,y) -> opDup y x) args)
+    | Call (retT, f, arguments) -> dup u retT; ignore (List.map (fun (x,y) -> opDup y x) arguments)
     | Bitcast (t1, op, t2) -> dup u t2; opDup op t1
     | Gep (ty, op, ops) -> dup u (Ptr Void); opDup op ty
     | Alloca ty -> undup u (Ptr ty)
@@ -105,22 +103,23 @@ module Fact =
        join of two SymPtr.t facts.
     *)
     let combine (ds:fact list) : fact =
-      let join uid (a:SymPtr.t option) (b:SymPtr.t option) : SymPtr.t option = 
-        begin match a with 
-          | Some Unique -> begin match b with 
-            | Some MayAlias -> Some MayAlias
-            | Some Unique
-            | Some UndefAlias | None -> Some Unique
-          end
+      (*need types, so we can use Some and Unique*)
+      let aux uid (x:SymPtr.t option) (y:SymPtr.t option) : SymPtr.t option = 
+        begin match x with 
+        | Some Unique -> 
+          begin match y with 
           | Some MayAlias -> Some MayAlias
-          | Some UndefAlias | None -> begin match b with 
-            | Some Unique -> Some Unique
-            | Some MayAlias -> Some MayAlias
-            | Some UndefAlias | None -> Some UndefAlias
-          end
+          | Some Unique | Some UndefAlias | None -> Some Unique
         end
-      in
-      List.fold_right (UidM.merge join) ds UidM.empty
+        | Some MayAlias -> Some MayAlias
+        | Some UndefAlias | None -> 
+          begin match y with 
+          | Some Unique -> Some Unique
+          | Some MayAlias -> Some MayAlias
+          | Some UndefAlias | None -> Some UndefAlias
+        end
+      end in
+      List.fold_right (UidM.merge aux) ds UidM.empty
   end
 
 (* instantiate the general framework ---------------------------------------- *)
