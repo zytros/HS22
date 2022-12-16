@@ -99,11 +99,6 @@ menhir --ocamlc '/home/user/.opam/4.06.0/bin/ocamlc.opt -I ll -I x86 -I util' --
 /home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o alias.cmo alias.ml
 # Target: constprop.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:constprop.cmo, file:constprop.ml, implem, ocaml, quiet }
 /home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o constprop.cmo constprop.ml
-+ /home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o constprop.cmo constprop.ml
-File "constprop.ml", line 97, characters 8-9:
-Warning 26: unused variable b.
-File "constprop.ml", line 98, characters 8-10:
-Warning 26: unused variable cb.
 # Target: dce.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:dce.cmo, file:dce.ml, implem, ocaml, quiet }
 /home/user/.opam/4.06.0/bin/ocamlc.opt -c -I x86 -I util -I ll -o dce.cmo dce.ml
 # Target: registers.ml.depends, tags: { extension:ml, file:registers.ml, ocaml, ocamldep, quiet }
@@ -176,11 +171,6 @@ Warning 26: unused variable cb.
 /home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o alias.cmx alias.ml
 # Target: constprop.cmx, tags: { compile, extension:cmx, extension:ml, file:constprop.cmx, file:constprop.ml, implem, native, ocaml, quiet }
 /home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o constprop.cmx constprop.ml
-+ /home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o constprop.cmx constprop.ml
-File "constprop.ml", line 97, characters 8-9:
-Warning 26: unused variable b.
-File "constprop.ml", line 98, characters 8-10:
-Warning 26: unused variable cb.
 # Target: dce.cmx, tags: { compile, extension:cmx, extension:ml, file:dce.cmx, file:dce.ml, implem, native, ocaml, quiet }
 /home/user/.opam/4.06.0/bin/ocamlopt.opt -c -I x86 -I util -I ll -o dce.cmx dce.ml
 # Target: frontend.cmx, tags: { compile, extension:cmx, extension:ml, file:frontend.cmx, file:frontend.ml, implem, native, ocaml, quiet }
